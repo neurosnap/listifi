@@ -1,0 +1,12 @@
+*.swp
+*.log
+.DS_Store
+node_modules
+dist
+.parcel-cache
+.vscode
+public/static
+public/index.html
+.envrc
+.env
+.env.prod

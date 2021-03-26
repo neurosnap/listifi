@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "strict": true,
+    "noEmit": true,
+    "target": "esnext",
+    "skipLibCheck": true,
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "lib": ["es6", "dom"],
+    "module": "commonjs",
+    "paths": {
+      "@app/*": ["src/*"]
+    },
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

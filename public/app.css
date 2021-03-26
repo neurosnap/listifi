@@ -1,0 +1,44 @@
+.active {
+  color: #ec7a7a !important;
+}
+
+#nav {
+  display: none;
+}
+
+/* desktop */
+@media only screen and (min-width: 48em) {
+  #nav {
+    display: flex;
+  }
+}
+
+#mobile-nav {
+  display: none;
+}
+
+/* mobile */
+@media only screen and (max-width: 48em) {
+  #mobile-nav {
+    display: flex;
+  }
+}
+
+.md > p {
+  padding: 8px 0;
+}
+
+.md > h1 {
+  padding: 10px 0;
+  font-size: 2em;
+}
+
+.md > h2 {
+  padding: 10px 0;
+  font-size: 1.5em;
+}
+
+.md > h3 {
+  padding: 10px 0;
+  font-size: 1.2em;
+}

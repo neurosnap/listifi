@@ -1,0 +1,9 @@
+{
+  "include": [
+    ".eslintrc.js",
+    "src/**/*",
+    "server/**/*",
+    "./schema.ts"
+  ],
+  "exclude": ["node_modules"]
+}

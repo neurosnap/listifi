@@ -1,0 +1,1 @@
+ALTER TABLE lists RENAME COLUMN title TO name;

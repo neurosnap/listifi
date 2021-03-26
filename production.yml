@@ -1,0 +1,39 @@
+version: "3.4"
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    env_file:
+      - .env.prod
+  nginx:
+    image: gcr.io/${PROJECT_ID}/nginx
+    links:
+      - app
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    ports:
+      - "80:80"
+  app:
+    image: gcr.io/${PROJECT_ID}/app
+    links:
+      - db
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--include", "--no-buffer", "--header", "'Connection: close'", "--header", "'Upgrade: websocket'", "http://localhost:3000"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    env_file:
+      - .env.prod
+volumes:
+  data:

@@ -1,0 +1,1 @@
+ALTER TABLE lispy_users RENAME TO app_users;
