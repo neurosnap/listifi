@@ -266,7 +266,10 @@ export const updateListItem = api.put<UpsertListItem>(
     const { ok, data } = ctx.response;
     if (!ok) return;
     const listItem = deserializeListItem(data);
-    ctx.actions.push(addListItems({ [listItem.id]: listItem }));
+    ctx.actions.push(
+      addListItems({ [listItem.id]: listItem }),
+      setLoaderSuccess({ id: ctx.name, message: listItem.id }),
+    );
   },
 );
 
