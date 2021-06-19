@@ -1,4 +1,3 @@
-import { batch, call, createEffect, createEffects, put } from 'redux-cofx';
 import {
   createReducerMap,
   createTable,
@@ -6,13 +5,7 @@ import {
   mustSelectEntity,
 } from 'robodux';
 
-import { apiFetch, ApiFetchResponse } from '@app/fetch';
-import {
-  Loaders,
-  setLoaderError,
-  setLoaderStart,
-  setLoaderSuccess,
-} from '@app/loaders';
+import { api, ApiCtx } from '@app/api';
 import {
   ApiUpdateSettings,
   ListClient,
@@ -71,62 +64,34 @@ const selectors = slice.getSelectors((state: State) => state[USERS_SLICE]);
 const must = mustSelectEntity(initUserClient);
 export const selectUserById = must(selectors.selectById);
 
-function* onFetchUser(id: string) {
-  if (!id) {
-    return;
-  }
+export const fetchUser = api.get<{ id: string }>('/users/:id', function* (
+  ctx: ApiCtx<UserFetchResponse>,
+  next,
+) {
+  yield next();
+  if (!ctx.response.ok) return;
 
-  yield put(setLoaderStart({ id: Loaders.fetchUser }));
-  const resp: ApiFetchResponse<UserFetchResponse> = yield call(
-    apiFetch,
-    `/users/${id}`,
-  );
-  if (!resp.ok) {
-    yield put(setLoaderError({ id: Loaders.fetchUser }));
-    return;
-  }
-
-  const user = deserializeUserClient(resp.data.user);
-  const listArr = resp.data.lists;
+  const { data } = ctx.response;
+  const user = deserializeUserClient(data.user);
+  const listArr = data.lists;
   const lists = listArr.reduce<MapEntity<ListClient>>((acc, list) => {
     acc[list.id] = deserializeList(list);
     return acc;
   }, {});
-  yield batch([
-    setLoaderSuccess({ id: Loaders.fetchUser }),
-    addUsers({ [user.username]: user }),
-    addLists(lists),
-  ]);
-}
+  ctx.actions.push(addUsers({ [user.username]: user }), addLists(lists));
+});
 
-function* onUpdateSettings(settings: UpdateSettings) {
-  const loaderName = Loaders.updateSettings;
-  yield put(setLoaderStart({ id: loaderName }));
-  const res: ApiFetchResponse<ApiUpdateSettings> = yield call(
-    apiFetch,
-    '/settings',
-    {
-      method: 'POST',
-      body: JSON.stringify(settings),
-    },
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName }));
-    return;
-  }
-
-  const { token } = res.data;
-  const users = processUsers([res.data.user]);
-  yield batch([
-    addUsers(users),
-    setToken(token),
-    setLoaderSuccess({ id: loaderName }),
-  ]);
-}
-
-export const updateSettings = (u: UpdateSettings) =>
-  createEffect(onUpdateSettings, u);
-export const { fetchUser } = createEffects({
-  fetchUser: onFetchUser,
+export const updateSettings = api.post<UpdateSettings>('/settings', function* (
+  ctx: ApiCtx<ApiUpdateSettings, UpdateSettings>,
+  next,
+) {
+  ctx.request = {
+    body: JSON.stringify(ctx.payload),
+  };
+  yield next();
+  if (!ctx.response.ok) return;
+  const { data } = ctx.response;
+  const { token } = data;
+  const users = processUsers([data.user]);
+  ctx.actions.push(addUsers(users), setToken(token));
 });
