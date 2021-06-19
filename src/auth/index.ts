@@ -22,7 +22,7 @@ function* postLogin(ctx: ApiCtx<TokenResponse>): ApiGen {
   if (!ctx.response.ok) return;
   yield put(setToken(ctx.response.data.token));
   const user = yield select(selectUser);
-  yield put(setLoaderSuccess({ id: `${ctx.name}`, meta: { user } }));
+  ctx.actions.push(setLoaderSuccess({ id: ctx.name, meta: { user } }));
 }
 
 function* authBasic(ctx: ApiCtx<{ token: string }>, next: Next) {
