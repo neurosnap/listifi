@@ -76,7 +76,7 @@ export function useLoaderSuccess(cur: LoadingState, success: () => any) {
     const curSuccess = !cur.isLoading && cur.isSuccess;
     if (prev.isLoading && curSuccess) success();
     setPrev(cur);
-  }, [cur]);
+  }, [cur.isSuccess, cur.isLoading]);
 }
 
 interface DragItem {

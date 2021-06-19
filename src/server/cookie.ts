@@ -12,20 +12,12 @@ export function getCookie(
   return ctx.cookies.get(COOKIE_TOKEN, { signed: true });
 }
 
-const isProd = env.nodeEnv === 'production';
-const prod = {
+const options = {
   httpOnly: true,
   signed: true,
   sameSite: 'lax' as any,
-  domain: 'listifi.app',
+  domain: new URL(env.apiUrl).hostname,
 };
-const dev = {
-  httpOnly: true,
-  signed: true,
-  sameSite: 'lax' as any,
-  domain: 'localhost',
-};
-const options = isProd ? prod : dev;
 
 export function setCookie(
   ctx: ParameterizedContext<
