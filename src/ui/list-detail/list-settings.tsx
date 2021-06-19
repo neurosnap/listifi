@@ -111,7 +111,7 @@ export const ListSettings = ({ list }: { list: ListClient }) => {
   };
 
   const remove = () => {
-    dispatch(deleteList(list.id));
+    dispatch(deleteList({ listId: list.id }));
     navigate(profileUrl(user.username));
     toast({
       title: 'List has been deleted!',

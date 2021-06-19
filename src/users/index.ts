@@ -64,22 +64,22 @@ const selectors = slice.getSelectors((state: State) => state[USERS_SLICE]);
 const must = mustSelectEntity(initUserClient);
 export const selectUserById = must(selectors.selectById);
 
-export const fetchUser = api.get<{ id: string }>('/users/:id', function* (
-  ctx: ApiCtx<UserFetchResponse>,
-  next,
-) {
-  yield next();
-  if (!ctx.response.ok) return;
+export const fetchUser = api.get<{ username: string }>(
+  '/users/:username',
+  function* (ctx: ApiCtx<UserFetchResponse>, next) {
+    yield next();
+    if (!ctx.response.ok) return;
 
-  const { data } = ctx.response;
-  const user = deserializeUserClient(data.user);
-  const listArr = data.lists;
-  const lists = listArr.reduce<MapEntity<ListClient>>((acc, list) => {
-    acc[list.id] = deserializeList(list);
-    return acc;
-  }, {});
-  ctx.actions.push(addUsers({ [user.username]: user }), addLists(lists));
-});
+    const { data } = ctx.response;
+    const user = deserializeUserClient(data.user);
+    const listArr = data.lists;
+    const lists = listArr.reduce<MapEntity<ListClient>>((acc, list) => {
+      acc[list.id] = deserializeList(list);
+      return acc;
+    }, {});
+    ctx.actions.push(addUsers({ [user.username]: user }), addLists(lists));
+  },
+);
 
 export const updateSettings = api.post<UpdateSettings>('/settings', function* (
   ctx: ApiCtx<ApiUpdateSettings, UpdateSettings>,

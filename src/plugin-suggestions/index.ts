@@ -145,7 +145,7 @@ export const approveSuggestion = api.post<ChangeSuggestion>(
   },
 );
 
-export const rejectSuggestion = api.post(
+export const rejectSuggestion = api.post<ChangeSuggestion>(
   '/suggestions/:listId/reject/:suggestionId',
   function* (ctx: ApiCtx<ListSuggestionResponse>, next) {
     yield next();

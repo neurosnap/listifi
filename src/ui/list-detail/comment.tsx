@@ -19,7 +19,7 @@ export const Comment = ({ comment }: { comment: ListCommentClient }) => {
   );
   const curUser = useSelector(selectUser);
   const remove = () => {
-    dispatch(removeComment(comment.id));
+    dispatch(removeComment({ id: comment.id }));
   };
   const isOwner = curUser.id === user.id;
 

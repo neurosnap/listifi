@@ -51,7 +51,7 @@ import { RainbowRuler } from '../atoms';
 import { useLoaderSuccess } from '../hooks';
 
 async function onListMount({ list, dispatch }: PluginOnMount) {
-  dispatch(fetchSuggestions(list.id));
+  dispatch(fetchSuggestions({ listId: list.id }));
 }
 
 const SuggestionItem = ({

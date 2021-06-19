@@ -64,7 +64,7 @@ export const ListDetailRead = ({
     });
   };
   const star = () => {
-    dispatch(starList(list.id));
+    dispatch(starList({ listId: list.id }));
   };
   const highlight = (e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.select();

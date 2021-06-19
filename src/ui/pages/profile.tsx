@@ -60,8 +60,8 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (username) {
-      dispatch(fetchUser(username));
-      dispatch(fetchStars(username));
+      dispatch(fetchUser({ username }));
+      dispatch(fetchStars({ username }));
     }
   }, [username]);
 

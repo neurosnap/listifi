@@ -176,7 +176,7 @@ export const fetchStars = api.get<{ username: string }>(
   },
 );
 
-export const startList = api.post<{ listId: string }>(
+export const starList = api.post<{ listId: string }>(
   '/lists/:listId/star',
   function* (ctx: ApiCtx<StarResponse>, next) {
     const { listId } = ctx.payload;

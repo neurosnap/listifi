@@ -1,8 +1,8 @@
 import { takeEvery, call, put, select, spawn } from 'redux-saga/effects';
 import { createAction } from 'robodux';
 
-import { fetchStars, onFetchLists } from '@app/lists';
-import { onFetchPlugins } from '@app/plugins';
+import { fetchStars, fetchLists } from '@app/lists';
+import { fetchPlugins } from '@app/plugins';
 import { createId, selectClientId, setClientId } from '@app/client-id';
 import {
   resetToken,
@@ -20,7 +20,7 @@ export function* onFetchData(): ApiGen {
     yield put(setClientId(createId()));
   }
 
-  yield spawn(onFetchPlugins);
+  yield spawn(fetchPlugins.run, fetchPlugins());
 
   const token = yield select(selectToken);
   if (token) {
@@ -30,7 +30,7 @@ export function* onFetchData(): ApiGen {
       return;
     }
 
-    yield call(onFetchLists);
+    yield call(fetchLists.run, fetchLists());
     const user = yield select(selectUser);
     yield put(fetchStars(user.username));
   }

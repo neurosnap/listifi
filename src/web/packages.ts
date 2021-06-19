@@ -11,6 +11,7 @@ import * as verify from '@app/verify';
 import * as plugins from '@app/plugins';
 import * as comments from '@app/comments';
 import * as pluginSuggestions from '@app/plugin-suggestions';
+import * as api from '@app/api';
 
 const packages: any[] = [
   env,
@@ -23,12 +24,16 @@ const packages: any[] = [
   plugins,
   comments,
   pluginSuggestions,
+  api,
 ];
 
-const sagas = packages.reduce((acc, pkg) => {
-  if (!pkg.sagas) return acc;
-  return { ...acc, ...pkg.sagas };
-}, {});
+const sagas = packages.reduce(
+  (acc, pkg) => {
+    if (!pkg.sagas) return acc;
+    return { ...acc, ...pkg.sagas };
+  },
+  { api: api.api.saga() },
+);
 
 export const rootSaga = sagaCreator(sagas, (err: Error) => {
   console.error(err);
