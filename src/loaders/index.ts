@@ -1,9 +1,5 @@
 import { State } from '@app/types';
-import {
-  createLoaderTable,
-  createReducerMap,
-  defaultLoadingItem,
-} from 'robodux';
+import { createLoaderTable, createReducerMap } from 'robodux';
 
 export enum Loaders {
   createList = 'createList',
@@ -39,12 +35,6 @@ export const {
   resetById: resetLoaderById,
 } = slice.actions;
 export const reducers = createReducerMap(slice);
-const selectLoaders = (state: State) => state[LOADERS_SLICE] || {};
-const initLoader = defaultLoadingItem();
-export const selectLoaderById = (
-  state: State,
-  { id }: { id: Loaders | string },
-) => {
-  const loaders = selectLoaders(state);
-  return loaders[id] || initLoader;
-};
+export const { selectById: selectLoaderById } = slice.getSelectors(
+  (state: State) => state[LOADERS_SLICE],
+);

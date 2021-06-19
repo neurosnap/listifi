@@ -105,7 +105,7 @@ const ProfilePage = () => {
               Your lists
             </Heading>
             <ListsView>
-              {!userLoader.loading && sortedLists.length === 0 ? (
+              {!userLoader.isLoading && sortedLists.length === 0 ? (
                 <Alert status="info">
                   <AlertIcon />
                   <Text mr={2}>You have not created a list yet.</Text>

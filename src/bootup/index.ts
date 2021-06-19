@@ -9,8 +9,9 @@ import {
   selectToken,
   selectUser,
 } from '@app/token';
+import { ApiGen } from '@app/types';
 
-export function* onFetchData() {
+export function* onFetchData(): ApiGen {
   const clientId = yield select(selectClientId);
 
   if (!clientId) {

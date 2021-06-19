@@ -58,11 +58,11 @@ export const LoginLocal = () => {
         isFullWidth
         type="submit"
         variant="rainbow"
-        isLoading={loader.loading}
+        isLoading={loader.isLoading}
       >
         Continue
       </Button>
-      <ErrorBox isInvalid={loader.error}>{loader.message}</ErrorBox>
+      <ErrorBox isInvalid={loader.isError}>{loader.message}</ErrorBox>
     </form>
   );
 };

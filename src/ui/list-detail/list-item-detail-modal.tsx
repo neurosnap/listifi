@@ -144,7 +144,7 @@ function ListItemNameViewer({
             variant="rainbow"
             onClick={save}
             size="sm"
-            isLoading={updateLoader.loading}
+            isLoading={updateLoader.isLoading}
           >
             Update item
           </Button>
@@ -158,7 +158,7 @@ function ListItemNameViewer({
           variant="outline"
           colorScheme="pink"
           onClick={() => remove(item.id)}
-          isLoading={deleteLoader.loading}
+          isLoading={deleteLoader.isLoading}
         >
           remove
         </Button>

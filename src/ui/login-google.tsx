@@ -52,7 +52,7 @@ export const LoginGoogle = ({
       <ErrorBox isInvalid={!!error}>
         <Box>{error}</Box>
       </ErrorBox>
-      <ErrorBox isInvalid={loader.error}>{loader.message}</ErrorBox>
+      <ErrorBox isInvalid={loader.isError}>{loader.message}</ErrorBox>
       <GoogleLogin
         clientId={clientId}
         buttonText={text}

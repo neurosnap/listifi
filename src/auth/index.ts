@@ -2,7 +2,12 @@ import { call, createEffects, put, select } from 'redux-cofx';
 
 import { selectHasTokenExpired, selectUser, setToken } from '@app/token';
 import { apiFetch, ApiFetchResponse } from '@app/fetch';
-import { LoginLocalParams, RegisterParams, TokenResponse } from '@app/types';
+import {
+  LoginLocalParams,
+  RegisterParams,
+  TokenResponse,
+  ApiGen,
+} from '@app/types';
 import {
   Loaders,
   setLoaderError,
@@ -17,13 +22,13 @@ interface AuthGoogle {
   clientId: string;
 }
 
-function* postLogin(clientToken: string, loaderName: Loaders) {
+function* postLogin(clientToken: string, loaderName: Loaders): ApiGen {
   yield put(setToken(clientToken));
   const user = yield select(selectUser);
   yield put(setLoaderSuccess({ id: loaderName, meta: { user } }));
 }
 
-function* onLoginGoogle(body: AuthGoogle) {
+function* onLoginGoogle(body: AuthGoogle): ApiGen {
   const loaderName = Loaders.loginGoogle;
 
   yield put(setLoaderStart({ id: loaderName }));
@@ -47,7 +52,7 @@ function* onLoginGoogle(body: AuthGoogle) {
   yield call(postLogin, clientToken, loaderName);
 }
 
-export function* onLoginGuest() {
+export function* onLoginGuest(): ApiGen {
   const loaderName = Loaders.login;
   const clientId = yield select(selectClientId);
   const hasTokenExpired = yield select(selectHasTokenExpired);

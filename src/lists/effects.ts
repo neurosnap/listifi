@@ -16,6 +16,7 @@ import {
   ApiStarsResponse,
   BulkCreateListResponse,
   ApiOrderResponse,
+  ApiGen,
 } from '@app/types';
 import {
   deleteItemLoader,
@@ -149,7 +150,7 @@ function* onUpdateList(payload: UpsertList) {
   ]);
 }
 
-export function* onFetchLists() {
+export function* onFetchLists(): ApiGen {
   const hasTokenExpired = yield select(selectHasTokenExpired);
   if (hasTokenExpired) {
     return;
@@ -239,7 +240,7 @@ function* onStarList(listId: string) {
   }
 }
 
-function* onCreateListItem(payload: UpsertListItem) {
+function* onCreateListItem(payload: UpsertListItem): ApiGen {
   const { listId } = payload;
   const loader = Loaders.createItem;
 
@@ -270,7 +271,7 @@ function* onCreateListItem(payload: UpsertListItem) {
   ]);
 }
 
-function* onCreateListItemBulk(payload: UpsertListItem) {
+function* onCreateListItemBulk(payload: UpsertListItem): ApiGen {
   const { listId } = payload;
   const loader = Loaders.createItem;
 
@@ -344,7 +345,7 @@ interface OrderListItems {
   order: string[];
 }
 
-function* onOrderListItems(payload: OrderListItems) {
+function* onOrderListItems(payload: OrderListItems): ApiGen {
   const { listId, order } = payload;
 
   const curListIds = yield select(selectItemIdsByList, { id: listId });
@@ -366,7 +367,7 @@ function* onOrderListItems(payload: OrderListItems) {
   }
 }
 
-function* onDeleteList(listId: string) {
+function* onDeleteList(listId: string): ApiGen {
   const loader = Loaders.deleteList;
   yield put(setLoaderStart({ id: loader }));
   const resp: ApiFetchResponse = yield call(apiFetch, `/lists/${listId}`, {
@@ -391,7 +392,7 @@ interface DeleteListItem {
   itemId: string;
 }
 
-function* onDeleteListItem(payload: DeleteListItem) {
+function* onDeleteListItem(payload: DeleteListItem): ApiGen {
   const { itemId, listId } = payload;
   const loader = deleteItemLoader(itemId);
 

@@ -130,11 +130,11 @@ export const Register = () => {
         size="lg"
         isFullWidth
         type="submit"
-        isLoading={loader.loading}
+        isLoading={loader.isLoading}
       >
         Create account
       </Button>
-      <ErrorBox isInvalid={loader.error}>{loader.message}</ErrorBox>
+      <ErrorBox isInvalid={loader.isError}>{loader.message}</ErrorBox>
     </form>
   );
 };

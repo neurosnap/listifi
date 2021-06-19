@@ -50,7 +50,7 @@ export const IntroView = () => {
         <Button variant="rainbow" onClick={login}>
           Sign in
         </Button>
-        <Button onClick={loginAsGuest} isLoading={loader.loading}>
+        <Button onClick={loginAsGuest} isLoading={loader.isLoading}>
           Sign in as Guest
         </Button>
       </ButtonGroup>

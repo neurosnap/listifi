@@ -80,7 +80,7 @@ export const ListNameEdit = ({
       <FormControl
         id="name"
         isRequired
-        isInvalid={loader.error || !nameValidator.isValid}
+        isInvalid={loader.isError || !nameValidator.isValid}
         mb={4}
       >
         <Input
@@ -101,7 +101,7 @@ export const ListNameEdit = ({
           exceed {NAME_CHAR_LIMIT} characters.
         </FormHelperText>
         <FormErrorMessage>
-          {loader.error ? loader.message : ''}
+          {loader.isError ? loader.message : ''}
           {nameValidator.reason}
         </FormErrorMessage>
       </FormControl>
@@ -119,7 +119,7 @@ export const ListNameEdit = ({
       </FormControl>
       <Flex align="center">
         <ButtonGroup flex={1} spacing="6">
-          <Button type="submit" isLoading={loader.loading} variant="rainbow">
+          <Button type="submit" isLoading={loader.isLoading} variant="rainbow">
             Save
           </Button>
           <Button variant="link" onClick={cancel}>
