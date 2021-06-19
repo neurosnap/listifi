@@ -1,4 +1,5 @@
-import { call, createEffects, put, select, spawn } from 'redux-cofx';
+import { takeEvery, call, put, select, spawn } from 'redux-saga/effects';
+import { createAction } from 'robodux';
 
 import { fetchStars, onFetchLists } from '@app/lists';
 import { onFetchPlugins } from '@app/plugins';
@@ -11,6 +12,7 @@ import {
 } from '@app/token';
 import { ApiGen } from '@app/types';
 
+export const fetchData = createAction('FETCH_DATA');
 export function* onFetchData(): ApiGen {
   const clientId = yield select(selectClientId);
 
@@ -34,11 +36,20 @@ export function* onFetchData(): ApiGen {
   }
 }
 
+export const bootup = createAction('BOOTUP');
 export function* onBootup() {
   yield call(onFetchData);
 }
 
-export const { bootup, fetchData } = createEffects({
-  bootup: onBootup,
-  fetchData: onFetchData,
-});
+function* watchBootup() {
+  yield takeEvery(`${bootup}`, onBootup);
+}
+
+function* watchFetchData() {
+  yield takeEvery(`${fetchData}`, onFetchData);
+}
+
+export const sagas = {
+  watchBootup,
+  watchFetchData,
+};

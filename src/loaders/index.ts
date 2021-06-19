@@ -27,14 +27,14 @@ export const fetchListLoader = (username: string, listname: string) =>
 export const updateSuggestionLoader = (id: string) => `update-suggestion:${id}`;
 
 export const LOADERS_SLICE = 'loaders';
-const slice = createLoaderTable({ name: 'loaders' });
+export const loaders = createLoaderTable({ name: 'loaders' });
 export const {
   loading: setLoaderStart,
   error: setLoaderError,
   success: setLoaderSuccess,
   resetById: resetLoaderById,
-} = slice.actions;
-export const reducers = createReducerMap(slice);
-export const { selectById: selectLoaderById } = slice.getSelectors(
+} = loaders.actions;
+export const reducers = createReducerMap(loaders);
+export const { selectById: selectLoaderById } = loaders.getSelectors(
   (state: State) => state[LOADERS_SLICE],
 );

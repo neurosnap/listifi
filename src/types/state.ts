@@ -26,4 +26,5 @@ export interface State {
   plugins: MapEntity<PluginClient>;
   comments: MapEntity<ListCommentClient>;
   suggestions: MapEntity<ListSuggestion>;
+  data: MapEntity<any>;
 }

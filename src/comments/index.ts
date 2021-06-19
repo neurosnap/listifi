@@ -1,21 +1,16 @@
 import { createReducerMap, createTable, MapEntity } from 'robodux';
+import { createSelector } from 'reselect';
+import { Next } from 'saga-query';
+
 import {
   FetchListCommentsResponse,
   ListCommentClient,
   ListCommentResponse,
   State,
 } from '@app/types';
-import { createSelector } from 'reselect';
-import { batch, call, createEffects, put } from 'redux-cofx';
-import {
-  Loaders,
-  setLoaderError,
-  setLoaderStart,
-  setLoaderSuccess,
-} from '@app/loaders';
-import { apiFetch, ApiFetchResponse } from '@app/fetch';
 import { deserializeModelBase } from '@app/model-helpers';
 import { addUsers, processUsers } from '@app/users';
+import { api, ApiCtx } from '@app/api';
 
 export const defaultComment = (
   c: Partial<ListCommentClient> = {},
@@ -108,118 +103,62 @@ export function processComments(comments: ListCommentResponse[]) {
     }, {});
 }
 
-function* onFetchComments({
-  itemId,
-  listId,
-}: {
+interface FetchComments {
   itemId: string;
   listId: string;
-}) {
-  const loaderName = Loaders.fetchComments;
-  yield put(setLoaderStart({ id: loaderName }));
-  const res: ApiFetchResponse<FetchListCommentsResponse> = yield call(
-    apiFetch,
-    `/lists/${listId}/items/${itemId}/comments`,
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  const comments = processComments(res.data.comments);
-  const users = processUsers(res.data.users);
-
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addComments(comments),
-    addUsers(users),
-  ]);
 }
 
-function* onFetchListComments({ listId }: { listId: string }) {
-  const loaderName = Loaders.fetchListComments;
-  yield put(setLoaderStart({ id: loaderName }));
-  const res: ApiFetchResponse<FetchListCommentsResponse> = yield call(
-    apiFetch,
-    `/comments/${listId}`,
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  const comments = processComments(res.data.comments);
-  const users = processUsers(res.data.users);
-
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addComments(comments),
-    addUsers(users),
-  ]);
+function* basicComments(ctx: ApiCtx<FetchListCommentsResponse>, next: Next) {
+  yield next();
+  if (!ctx.response.ok) return;
+  const { data } = ctx.response;
+  const comments = processComments(data.comments);
+  const users = processUsers(data.users);
+  ctx.actions.push(addComments(comments), addUsers(users));
 }
 
-function* onCreateComment({
-  itemId,
-  listId,
-  comment,
-}: {
+export const fetchComments = api.get<FetchComments>(
+  '/lists/:listId/items/:itemId/comments',
+  basicComments,
+);
+
+export const fetchListComments = api.get<{ listId: string }>(
+  '/comments/:listId',
+  basicComments,
+);
+
+interface CreateComment {
   itemId?: string;
   listId: string;
   comment: string;
-}) {
-  const loaderName = Loaders.createComment;
-  yield put(setLoaderStart({ id: loaderName }));
-  const res: ApiFetchResponse<ListCommentResponse> = yield call(
-    apiFetch,
-    '/comments',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        item_id: itemId,
-        list_id: listId,
-        comment,
-      }),
-    },
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  const nextComment = deserializeComment(res.data);
-
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addComments({ [nextComment.id]: nextComment }),
-  ]);
 }
 
-function* onRemoveComment(id: string) {
-  const loaderName = Loaders.deleteComment;
-  yield put(setLoaderStart({ id: loaderName }));
-  const res: ApiFetchResponse = yield call(apiFetch, `/comments/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  yield batch([removeComments([id]), setLoaderSuccess({ id: loaderName })]);
-}
-
-export const {
-  fetchComments,
-  createComment,
-  removeComment,
-  fetchListComments,
-} = createEffects({
-  fetchComments: onFetchComments,
-  fetchListComments: onFetchListComments,
-  createComment: onCreateComment,
-  removeComment: onRemoveComment,
+export const createComment = api.post<CreateComment>('/comments', function* (
+  ctx,
+  next,
+) {
+  ctx.request = {
+    body: JSON.stringify({
+      item_id: ctx.payload.itemId,
+      list_id: ctx.payload.listId,
+      comment: ctx.payload.comment,
+    }),
+  };
+  yield next();
+  if (!ctx.response.ok) return;
+  const nextComment = deserializeComment(ctx.response.data);
+  ctx.actions.push(addComments({ [nextComment.id]: nextComment }));
 });
+
+interface RemoveComment {
+  id: string;
+}
+
+export const removeComment = api.delete<RemoveComment>(
+  '/comments/:id',
+  function* (ctx: ApiCtx<null, RemoveComment>, next) {
+    yield next();
+    if (!ctx.response.ok) return;
+    ctx.actions.push(removeComments([ctx.payload.id]));
+  },
+);

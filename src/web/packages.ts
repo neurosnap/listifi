@@ -1,4 +1,5 @@
 import { createApp } from 'robodux';
+import sagaCreator from 'redux-saga-creator';
 
 import * as env from '@app/env';
 import * as token from '@app/token';
@@ -24,5 +25,14 @@ const packages: any[] = [
   pluginSuggestions,
 ];
 
-const { reducer } = createApp(packages);
-export { reducer };
+const sagas = packages.reduce((acc, pkg) => {
+  if (!pkg.sagas) return acc;
+  return { ...acc, ...pkg.sagas };
+}, {});
+
+export const rootSaga = sagaCreator(sagas, (err: Error) => {
+  console.error(err);
+});
+
+const app = createApp(packages);
+export const rootReducer = app.reducer;
