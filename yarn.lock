@@ -4357,11 +4357,6 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-cofx@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/cofx/-/cofx-2.2.0.tgz#08a40be0efe15cc7629e40500a76ad0e7d88d0b8"
-  integrity sha512-0jUACgb7sO+WKUuNv9CpgdIIV0Z1Hf2HYAsVV3FjNAb9ZtJaFzeIJMlhDxpRyW7ScAsrVFy+GZwcpZ6lchIIKA==
-
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/collect-v8-coverage/-/collect-v8-coverage-1.0.1.tgz#cc2c8e94fc18bbdffe64d6534570c8a673b27f59"
@@ -11373,13 +11368,6 @@ redux-batched-actions@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/redux-batched-actions/-/redux-batched-actions-0.5.0.tgz#d3f0e359b2a95c7d80bab442df450bfafd57d122"
   integrity sha512-6orZWyCnIQXMGY4DUGM0oj0L7oYnwTACsfsru/J7r94RM3P9eS7SORGpr3LCeRCMoIMQcpfKZ7X4NdyFHBS8Eg==
-
-redux-cofx@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/redux-cofx/-/redux-cofx-2.4.0.tgz#4ae30a501239e62675d840975fdcb64d2e9bef37"
-  integrity sha512-9FQNabDsSBiTb7JBWD23Idy4cf+z8g/vhaV3YU90y0KzHimMpUQxavpsOEtGQCNImtmpCQ8mNut3Uk8H09b8Vg==
-  dependencies:
-    cofx "^2.2.0"
 
 redux-logger@^3.0.6:
   version "3.0.6"
