@@ -27,14 +27,6 @@ docker-compose:
 docker-compose up -d
 ```
 
-Create the database
-
-```bash
-make psql
-=# CREATE DATABASE listifi;
-=# \q
-```
-
 Run migrations
 
 ```bash
