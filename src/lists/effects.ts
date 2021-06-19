@@ -18,9 +18,11 @@ import {
   ApiGen,
 } from '@app/types';
 import {
-  // deleteItemLoader,
-  // fetchListLoader,
+  deleteItemLoader,
+  fetchListLoader,
+  setLoaderStart,
   setLoaderSuccess,
+  setLoaderError,
 } from '@app/loaders';
 import { selectHasTokenExpired } from '@app/token';
 import { addUsers, processUsers } from '@app/users';
@@ -321,17 +323,26 @@ interface DeleteListItem {
 export const deleteListItem = api.delete<DeleteListItem>(
   '/lists/:listId/items/:itemId',
   function* (ctx: ApiCtx<any, DeleteListItem>, next): ApiGen {
-    // TODO: const loader = deleteItemLoader(itemId);
     const { itemId, listId } = ctx.payload;
+    const loader = deleteItemLoader(itemId);
+    yield put(setLoaderStart({ id: loader }));
     yield next();
     const { ok } = ctx.response;
-    if (!ok) return;
+    if (!ok) {
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
+      return;
+    }
 
     const itemIds: string[] = yield select(selectItemIdsByList, {
       id: listId,
     });
     const newItemIds = itemIds.filter((id) => id !== itemId);
-    ctx.actions.push(addListItemIds({ [listId]: newItemIds }));
+    ctx.actions.push(
+      addListItemIds({ [listId]: newItemIds }),
+      setLoaderSuccess({ id: loader }),
+    );
   },
 );
 
@@ -343,13 +354,21 @@ interface FetchList {
 export const fetchList = api.get<FetchList>(
   '/lists/:username/:listname',
   function* (ctx: ApiCtx<FetchListResponse, FetchList>, next) {
-    // TODO: const loader = fetchListLoader(username, listname);
+    const { username, listname } = ctx.payload;
     if (!ctx.payload.username || !ctx.payload.listname) {
       return;
     }
+    const loader = fetchListLoader(username, listname);
+    yield setLoaderStart({ id: loader });
+
     yield next();
     const { ok, data } = ctx.response;
-    if (!ok) return;
+    if (!ok) {
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
+      return;
+    }
 
     const list = deserializeList(data.list);
     const { items, itemIds } = processListItems(data.items);
@@ -362,6 +381,7 @@ export const fetchList = api.get<FetchList>(
       addListItemIds({ [list.id]: itemIds }),
       addUsers(users),
       addComments(comments),
+      setLoaderSuccess({ id: loader }),
     );
   },
 );

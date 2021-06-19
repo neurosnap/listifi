@@ -11,9 +11,9 @@ import {
 } from '@chakra-ui/react';
 import { Helmet } from 'react-helmet-async';
 
-import { fetchList, selectListByUrl } from '@app/lists';
+import { fetchList, selectListByUrl, updateList } from '@app/lists';
 import { ListClient, State } from '@app/types';
-import { selectLoaderById, fetchListLoader, Loaders } from '@app/loaders';
+import { selectLoaderById, fetchListLoader } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { listDetailUrl } from '@app/routes';
 import { fetchListComments } from '@app/comments';
@@ -39,7 +39,7 @@ const ListDetailPage = () => {
     selectLoaderById(state, { id: fetchListLoader(username, listname) }),
   );
   const updateLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.updateList }),
+    selectLoaderById(state, { id: `${updateList}` }),
   );
   const location = useLocation();
   const navigate = useNavigate();

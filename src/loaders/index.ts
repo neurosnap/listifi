@@ -1,25 +1,6 @@
 import { State } from '@app/types';
 import { createLoaderTable, createReducerMap } from 'robodux';
 
-export enum Loaders {
-  createList = 'createList',
-  createItem = 'createItem',
-  updateList = 'updateList',
-  deleteList = 'deleteList',
-  updateListItem = 'updateListItem',
-  login = 'login',
-  loginGoogle = 'loginGoogle',
-  register = 'register',
-  fetchUser = 'fetchUser',
-  fetchComments = 'fetchComments',
-  fetchListComments = 'fetchListComments',
-  createComment = 'createComment',
-  deleteComment = 'deleteComment',
-  fetchSuggestions = 'fetchSuggestions',
-  createSuggestion = 'createSuggestion',
-  updateSettings = 'updateSettings',
-}
-
 export const deleteItemLoader = (id: string) => `delete-item:${id}`;
 export const fetchListLoader = (username: string, listname: string) =>
   `fetch-list:${username}/${listname}`;

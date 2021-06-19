@@ -14,7 +14,7 @@ import { Helmet } from 'react-helmet-async';
 import { validUsername } from '@app/validate';
 import { updateSettings } from '@app/users';
 import { State } from '@app/types';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { useNavigate } from 'react-router';
 import { profileUrl } from '@app/routes';
 import { selectUser } from '@app/token';
@@ -31,7 +31,7 @@ const AuthUsernamePage = () => {
     dispatch(updateSettings({ username }));
   };
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.updateSettings }),
+    selectLoaderById(state, { id: `${updateSettings}` }),
   );
   const navigate = useNavigate();
 

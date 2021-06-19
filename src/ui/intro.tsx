@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginUrl } from '@app/routes';
 import { loginGuest } from '@app/auth';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { State } from '@app/types';
 
 export const IntroView = () => {
@@ -20,7 +20,7 @@ export const IntroView = () => {
   const dispatch = useDispatch();
   const hasTokenExpired = useSelector(selectHasTokenExpired);
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.login }),
+    selectLoaderById(state, { id: `${login}` }),
   );
   const login = () => {
     navigate(loginUrl());

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectCommentsByItemId, fetchComments } from '@app/comments';
 import { State } from '@app/types';
 import { Box, Spinner, VStack } from '@chakra-ui/react';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { selectItemById } from '@app/lists';
 
 import { PostComment } from './post-comment';
@@ -19,7 +19,7 @@ export const ListItemComments = ({ itemId }: { itemId: string }) => {
     selectCommentsByItemId(state, { id: itemId }),
   );
   const fetchLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.fetchComments }),
+    selectLoaderById(state, { id: `${fetchComments}` }),
   );
 
   useEffect(() => {

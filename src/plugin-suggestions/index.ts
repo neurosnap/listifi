@@ -1,4 +1,4 @@
-import { select } from 'redux-saga/effects';
+import { select, put } from 'redux-saga/effects';
 import { createSelector } from 'reselect';
 import { createReducerMap, createTable, MapEntity } from 'robodux';
 
@@ -19,6 +19,12 @@ import {
   ApiGen,
 } from '@app/types';
 import { addUsers, processUsers } from '@app/users';
+import {
+  updateSuggestionLoader,
+  setLoaderStart,
+  setLoaderError,
+  setLoaderSuccess,
+} from '@app/loaders';
 
 export const defaultListSuggestion = (
   s: Partial<ListSuggestion> = {},
@@ -106,7 +112,6 @@ export interface CreateSuggestion {
 export const createSuggestion = api.post<CreateSuggestion>(
   '/suggestions/:listId',
   function* (ctx: ApiCtx<ListSuggestionResponse, CreateSuggestion>, next) {
-    // TODO: figure out updateSuggestionLoader
     ctx.request = {
       body: JSON.stringify({
         user_id: ctx.payload.userId,
@@ -127,10 +132,20 @@ interface ChangeSuggestion {
 
 export const approveSuggestion = api.post<ChangeSuggestion>(
   '/suggestions/:listId/approve/:suggestionId',
-  function* (ctx: ApiCtx<ApproveSuggestionResponse>, next): ApiGen {
-    // TODO: figure out updateSuggestionLoader
+  function* (
+    ctx: ApiCtx<ApproveSuggestionResponse, ChangeSuggestion>,
+    next,
+  ): ApiGen {
+    const { suggestionId } = ctx.payload;
+    const loader = updateSuggestionLoader(suggestionId);
+    yield put(setLoaderStart({ id: loader }));
     yield next();
-    if (!ctx.response.ok) return;
+    if (!ctx.response.ok) {
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
+      return;
+    }
     const { data } = ctx.response;
     const suggestions = processSuggestions([data.suggestion]);
     const listItem = deserializeListItem(data.item);
@@ -141,16 +156,28 @@ export const approveSuggestion = api.post<ChangeSuggestion>(
       addSuggestions(suggestions),
       addListItems({ [listItem.id]: listItem }),
       addListItemIds({ [ctx.payload.listId]: [...itemIds, listItem.id] }),
+      setLoaderSuccess({ id: loader }),
     );
   },
 );
 
 export const rejectSuggestion = api.post<ChangeSuggestion>(
   '/suggestions/:listId/reject/:suggestionId',
-  function* (ctx: ApiCtx<ListSuggestionResponse>, next) {
+  function* (ctx: ApiCtx<ListSuggestionResponse, ChangeSuggestion>, next) {
+    const { suggestionId } = ctx.payload;
+    const loader = updateSuggestionLoader(suggestionId);
+    yield put(setLoaderStart({ id: loader }));
     yield next();
-    if (!ctx.response.ok) return;
+    if (!ctx.response.ok) {
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
+      return;
+    }
     const suggestions = processSuggestions([ctx.response.data]);
-    ctx.actions.push(addSuggestions(suggestions));
+    ctx.actions.push(
+      addSuggestions(suggestions),
+      setLoaderSuccess({ id: loader }),
+    );
   },
 );
