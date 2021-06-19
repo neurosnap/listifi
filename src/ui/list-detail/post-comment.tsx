@@ -85,7 +85,7 @@ export const PostComment = ({
         <Button
           variant="rainbow"
           onClick={post}
-          isLoading={postLoader.loading}
+          isLoading={postLoader.isLoading}
           disabled={text.length === 0}
         >
           post

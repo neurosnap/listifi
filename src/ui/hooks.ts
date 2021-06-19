@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DropTargetMonitor, useDrag, useDrop, XYCoord } from 'react-dnd';
 import { useSelector } from 'react-redux';
-import { LoadingItemState } from 'robodux';
+import { LoadingState } from 'robodux';
 
 import { defaultValidation, Validation } from '@app/validate';
 import { selectEnv } from '@app/env';
@@ -70,11 +70,11 @@ export function useFetch<D = any>(uri: string, opts: RequestInit) {
   return state;
 }
 
-export function useLoaderSuccess(cur: LoadingItemState, success: () => any) {
+export function useLoaderSuccess(cur: LoadingState, success: () => any) {
   const [prev, setPrev] = useState(cur);
   useEffect(() => {
-    const curSuccess = !cur.loading && cur.success;
-    if (prev.loading && curSuccess) success();
+    const curSuccess = !cur.isLoading && cur.isSuccess;
+    if (prev.isLoading && curSuccess) success();
     setPrev(cur);
   }, [cur]);
 }

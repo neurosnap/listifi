@@ -19,6 +19,7 @@ import {
   ListSuggestion,
   ListSuggestionResponse,
   State,
+  ApiGen,
 } from '@app/types';
 import { addUsers, processUsers } from '@app/users';
 import { batch, call, createEffects, put, select } from 'redux-cofx';
@@ -150,7 +151,7 @@ function* onApproveSuggestion({
 }: {
   listId: string;
   suggestionId: string;
-}) {
+}): ApiGen {
   const loaderName = updateSuggestionLoader(suggestionId);
   yield put(setLoaderStart({ id: loaderName }));
 

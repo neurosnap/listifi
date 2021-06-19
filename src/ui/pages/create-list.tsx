@@ -153,7 +153,7 @@ const CreateView = () => {
             type="submit"
             size="lg"
             isFullWidth
-            isLoading={loader.loading}
+            isLoading={loader.isLoading}
           >
             Create
           </Button>

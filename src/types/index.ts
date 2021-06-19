@@ -16,3 +16,5 @@ export * from './comments';
 export * from './api';
 export * from './suggestions';
 export * from './settings';
+
+export type ApiGen = Generator<any, any, any>;

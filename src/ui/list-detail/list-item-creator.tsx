@@ -151,7 +151,7 @@ export const ListItemCreator = ({ listId }: { listId: string }) => {
         <ButtonGroup mt={4} spacing={4}>
           <Button
             onClick={createItem}
-            isLoading={loader.loading}
+            isLoading={loader.isLoading}
             variant="rainbow"
             disabled={item.text === ''}
           >
@@ -196,7 +196,7 @@ export const ListItemCreator = ({ listId }: { listId: string }) => {
         <ButtonGroup mt={4} spacing={4}>
           <Button
             onClick={createItems}
-            isLoading={loader.loading}
+            isLoading={loader.isLoading}
             variant="rainbow"
             disabled={item.text === ''}
           >

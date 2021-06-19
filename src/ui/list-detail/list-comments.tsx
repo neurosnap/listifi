@@ -24,7 +24,7 @@ export const ListComments = ({ listId }: { listId: string }) => {
     <Box>
       <VStack spacing={4} align="stretch">
         <PostComment listId={list.id} />
-        {fetchLoader.loading && comments.length === 0 ? <Spinner /> : null}
+        {fetchLoader.isLoading && comments.length === 0 ? <Spinner /> : null}
         <Box>
           {comments.map((comment) => (
             <Comment key={comment.id} comment={comment} />

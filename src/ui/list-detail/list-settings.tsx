@@ -172,7 +172,11 @@ export const ListSettings = ({ list }: { list: ListClient }) => {
         </FormControl>
         <Flex align="center" w="100%">
           <ButtonGroup flex={1} spacing="6">
-            <Button type="submit" isLoading={loader.loading} variant="rainbow">
+            <Button
+              type="submit"
+              isLoading={loader.isLoading}
+              variant="rainbow"
+            >
               Save
             </Button>
             <Button variant="link" onClick={cancel}>
@@ -181,7 +185,7 @@ export const ListSettings = ({ list }: { list: ListClient }) => {
           </ButtonGroup>
         </Flex>
         <Box rounded={2} bg="red.50" p={4}>
-          <DestroyButton confirm={remove} isLoading={deleteLoader.loading}>
+          <DestroyButton confirm={remove} isLoading={deleteLoader.isLoading}>
             Are you sure you want to permenantly delete this list?
           </DestroyButton>
         </Box>

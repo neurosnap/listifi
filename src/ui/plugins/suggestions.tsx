@@ -115,7 +115,7 @@ const SuggestionItem = ({
           {canEdit ? (
             <ButtonGroup>
               <Button
-                isLoading={loader.loading}
+                isLoading={loader.isLoading}
                 onClick={approve}
                 colorScheme="green"
                 size="sm"
@@ -124,7 +124,7 @@ const SuggestionItem = ({
               </Button>
               <Button
                 size="sm"
-                isLoading={loader.loading}
+                isLoading={loader.isLoading}
                 onClick={reject}
                 colorScheme="pink"
               >
@@ -351,14 +351,14 @@ const MakeSuggestion = ({
           onClick={suggestItem}
           variant="rainbow"
           disabled={text === ''}
-          isLoading={loader.loading}
+          isLoading={loader.isLoading}
         >
           Suggest item
         </Button>
         <Button
           variant="link"
           onClick={() => setOpen(false)}
-          isDisabled={loader.loading}
+          isDisabled={loader.isLoading}
         >
           cancel
         </Button>
