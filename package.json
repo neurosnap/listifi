@@ -1,9 +1,9 @@
 {
   "name": "listifi",
   "version": "1.0.0",
-  "description": "Your list with a lisp",
-  "repository": "https://github.com/neurosnap/lispy",
-  "author": "Eric Bower <neurosnap@gmail.com>",
+  "description": "sharable lists",
+  "repository": "https://github.com/neurosnap/listifi",
+  "author": "Eric Bower <me@erock.io>",
   "license": "MIT",
   "private": true,
   "scripts": {
