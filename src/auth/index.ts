@@ -1,5 +1,5 @@
 import { call, put, select } from 'redux-saga/effects';
-import { Next } from 'saga-query';
+import { Next, setLoaderSuccess } from 'saga-query';
 
 import { selectHasTokenExpired, selectUser, setToken } from '@app/token';
 import {
@@ -8,7 +8,6 @@ import {
   TokenResponse,
   ApiGen,
 } from '@app/types';
-import { setLoaderSuccess } from '@app/loaders';
 import { selectClientId } from '@app/client-id';
 import { resetStore } from '@app/reset-store';
 import { api, ApiCtx } from '@app/api';

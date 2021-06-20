@@ -17,13 +17,7 @@ import {
   ApiOrderResponse,
   ApiGen,
 } from '@app/types';
-import {
-  deleteItemLoader,
-  fetchListLoader,
-  setLoaderStart,
-  setLoaderSuccess,
-  setLoaderError,
-} from '@app/loaders';
+import { deleteItemLoader, fetchListLoader } from '@app/loaders';
 import { selectHasTokenExpired } from '@app/token';
 import { addUsers, processUsers } from '@app/users';
 import { processComments, addComments } from '@app/comments';
@@ -100,8 +94,8 @@ export const createList = api.post<UpsertList>('/lists', function* (
     listIds.push(item.id);
     return acc;
   }, {});
+  ctx.loader.success = { id: ctx.name, meta: { list } };
   ctx.actions.push(
-    setLoaderSuccess({ id: ctx.name, meta: { list } }),
     addLists({ [list.id]: list }),
     addListItems(items),
     addListItemIds({ [list.id]: listIds }),
@@ -124,10 +118,8 @@ export const updateList = api.put<UpsertList>('/lists/:id', function* (
   yield next();
   if (!ctx.response.ok) return;
   const list = deserializeList(ctx.response.data);
-  ctx.actions.push(
-    addLists({ [list.id]: list }),
-    setLoaderSuccess({ id: ctx.name, meta: { list } }),
-  );
+  ctx.loader.success = { id: ctx.name, meta: { list } };
+  ctx.actions.push(addLists({ [list.id]: list }));
 });
 
 export const fetchLists = api.get('/lists', function* (
@@ -216,10 +208,10 @@ export const createListItem = api.post<UpsertListItem>(
     if (!ok) return;
     const listItem = deserializeListItem(data);
     const itemIds = yield select(selectItemIdsByList, { id: listId });
+    ctx.loader.success = { id: ctx.name, message: listItem.id };
     ctx.actions.push(
       addListItems({ [listItem.id]: listItem }),
       addListItemIds({ [listId]: [...itemIds, listItem.id] }),
-      setLoaderSuccess({ id: ctx.name, message: listItem.id }),
     );
   },
 );
@@ -268,10 +260,8 @@ export const updateListItem = api.put<UpsertListItem>(
     const { ok, data } = ctx.response;
     if (!ok) return;
     const listItem = deserializeListItem(data);
-    ctx.actions.push(
-      addListItems({ [listItem.id]: listItem }),
-      setLoaderSuccess({ id: ctx.name, message: listItem.id }),
-    );
+    ctx.loader.success = { id: ctx.name, message: listItem.id };
+    ctx.actions.push(addListItems({ [listItem.id]: listItem }));
   },
 );
 
@@ -311,11 +301,11 @@ export const deleteList = api.delete<ListPayload>('/lists/:listId', function* (
   const { ok } = ctx.response;
   if (!ok) return;
   const itemIds = yield select(selectItemIdsByList, { id: listId });
+  ctx.loader.success = { id: ctx.name, message: listId };
   ctx.actions.push(
     removeLists([listId]),
     removeListItemIds([listId]),
     removeListItems(itemIds),
-    setLoaderSuccess({ id: ctx.name, message: listId }),
   );
 });
 
@@ -329,13 +319,12 @@ export const deleteListItem = api.delete<DeleteListItem>(
   function* (ctx: ApiCtx<any, DeleteListItem>, next): ApiGen {
     const { itemId, listId } = ctx.payload;
     const loader = deleteItemLoader(itemId);
-    yield put(setLoaderStart({ id: loader }));
+    ctx.loader.loading = { id: loader };
+    // yield put(setLoaderStart({ id: loader }));
     yield next();
     const { ok } = ctx.response;
     if (!ok) {
-      ctx.actions.push(
-        setLoaderError({ id: loader, message: ctx.response.data.message }),
-      );
+      ctx.loader.error = { id: loader, message: ctx.response.data.message };
       return;
     }
 
@@ -343,10 +332,8 @@ export const deleteListItem = api.delete<DeleteListItem>(
       id: listId,
     });
     const newItemIds = itemIds.filter((id) => id !== itemId);
-    ctx.actions.push(
-      addListItemIds({ [listId]: newItemIds }),
-      setLoaderSuccess({ id: loader }),
-    );
+    ctx.loader.success = { id: loader };
+    ctx.actions.push(addListItemIds({ [listId]: newItemIds }));
   },
 );
 
@@ -363,29 +350,27 @@ export const fetchList = api.get<FetchList>(
       return;
     }
     const loader = fetchListLoader(username, listname);
-    yield setLoaderStart({ id: loader });
+    ctx.loader.loading = { id: loader };
 
     yield next();
-    const { ok, data } = ctx.response;
-    if (!ok) {
-      ctx.actions.push(
-        setLoaderError({ id: loader, message: ctx.response.data.message }),
-      );
+    if (!ctx.response.ok) {
+      ctx.loader.error = { id: loader, message: ctx.response.data.message };
       return;
     }
 
+    const { data } = ctx.response;
     const list = deserializeList(data.list);
     const { items, itemIds } = processListItems(data.items);
     const users = processUsers(data.users);
     const comments = processComments(data.comments);
 
+    ctx.loader.success = { id: loader };
     ctx.actions.push(
       addLists({ [list.id]: list }),
       addListItems(items),
       addListItemIds({ [list.id]: itemIds }),
       addUsers(users),
       addComments(comments),
-      setLoaderSuccess({ id: loader }),
     );
   },
 );

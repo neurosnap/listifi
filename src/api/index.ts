@@ -1,11 +1,14 @@
-import { call, put, select } from 'redux-saga/effects';
-import { Action, createTable, createReducerMap } from 'robodux';
-import { createApi, queryCtx, urlParser, FetchCtx, Next } from 'saga-query';
-import { batchActions } from 'redux-batched-actions';
+import { call, select } from 'redux-saga/effects';
+import {
+  createApi,
+  requestMonitor,
+  requestParser,
+  FetchCtx,
+  Next,
+} from 'saga-query';
 
 import { selectEnv } from '@app/env';
-import { State, ApiGen } from '@app/types';
-import { loaders } from '@app/loaders';
+import { ApiGen } from '@app/types';
 
 interface FetchApiOpts extends RequestInit {
   url?: string;
@@ -73,58 +76,8 @@ function* onFetchApi(ctx: FetchCtx, next: Next): ApiGen {
   yield next();
 }
 
-function* trackLoading(
-  ctx: {
-    name: string;
-    actions: Action[];
-    payload: FetchCtx['payload'];
-    response: FetchCtx['response'];
-  },
-  next: Next,
-) {
-  const id = ctx.name;
-  yield put(loaders.actions.loading({ id }));
-
-  yield next();
-
-  if (!ctx.response.ok) {
-    ctx.actions.push(
-      loaders.actions.error({ id, message: ctx.response.data.message }),
-    );
-    return;
-  }
-
-  ctx.actions.push(loaders.actions.success({ id }));
-}
-
-export function* dispatchActions(ctx: { actions: Action[] }, next: Next) {
-  yield next();
-  if (ctx.actions.length === 0) return;
-  yield put(batchActions(ctx.actions));
-}
-
-const DATA_NAME = 'data';
-const data = createTable<any>({ name: DATA_NAME });
-export const { selectById: selectDataById } = data.getSelectors(
-  (s: State) => s[DATA_NAME],
-);
-export const reducers = createReducerMap(data);
-function* quickSave(ctx: ApiCtx, next: Next) {
-  yield next();
-  if (!ctx.response.ok) return;
-  if (!ctx.request.quickSave) return;
-  ctx.actions.push(
-    data.actions.add({
-      [JSON.stringify(ctx.action)]: ctx.response.data,
-    }),
-  );
-}
-
 export const api = createApi<ApiCtx>();
-api.use(dispatchActions);
+api.use(requestMonitor());
 api.use(api.routes());
-api.use(queryCtx);
-api.use(urlParser);
-api.use(quickSave);
-api.use(trackLoading);
+api.use(requestParser());
 api.use(onFetchApi);

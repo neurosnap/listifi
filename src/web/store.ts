@@ -1,14 +1,12 @@
 import { createStore as createReduxStore, applyMiddleware } from 'redux';
-import { Action } from 'robodux';
-import createSagaMiddleware, { stdChannel } from 'redux-saga';
-import { enableBatching, BATCH } from 'redux-batched-actions';
+import { prepareStore, BATCH } from 'saga-query';
 // import logger from 'redux-logger';
 
 import { State } from '@app/types';
 import { setClientId } from '@app/client-id';
 import { resetReducer } from '@app/reset-store';
 
-import { rootReducer, rootSaga } from './packages';
+import { reducers, sagas } from './packages';
 
 const processStorage = (action: any) => {
   if (action.type === `${setClientId}`) {
@@ -26,22 +24,12 @@ const lsMiddleware = () => (next: any) => (action: any) => {
 };
 
 export const createStore = (initialState: Partial<State> = {}) => {
-  const middleware: any[] = [lsMiddleware];
-
-  const channel = stdChannel();
-  const rawPut = channel.put;
-  channel.put = (action: Action<any>) => {
-    if (action.type === BATCH) {
-      action.payload.forEach(rawPut);
-      return;
-    }
-    rawPut(action);
-  };
-
-  const sagaMiddleware = createSagaMiddleware({ channel } as any);
-  middleware.push(sagaMiddleware);
-
-  const reducer = enableBatching(resetReducer(rootReducer));
+  const prepared = prepareStore({
+    reducers,
+    sagas,
+  });
+  const middleware: any[] = [lsMiddleware, ...prepared.middleware];
+  const reducer = resetReducer(prepared.reducer);
 
   if (process.env.NODE_ENV === 'development') {
     // middleware.push(logger);
@@ -53,7 +41,7 @@ export const createStore = (initialState: Partial<State> = {}) => {
     applyMiddleware(...middleware),
   );
 
-  sagaMiddleware.run(rootSaga);
+  prepared.run();
 
   return { store };
 };

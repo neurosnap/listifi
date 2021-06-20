@@ -1,6 +1,3 @@
-import { createApp } from 'robodux';
-import sagaCreator from 'redux-saga-creator';
-
 import * as env from '@app/env';
 import * as token from '@app/token';
 import * as lists from '@app/lists';
@@ -27,7 +24,7 @@ const packages: any[] = [
   api,
 ];
 
-const sagas = packages.reduce(
+export const sagas = packages.reduce(
   (acc, pkg) => {
     if (!pkg.sagas) return acc;
     return { ...acc, ...pkg.sagas };
@@ -35,9 +32,7 @@ const sagas = packages.reduce(
   { api: api.api.saga() },
 );
 
-export const rootSaga = sagaCreator(sagas, (err: Error) => {
-  console.error(err);
-});
-
-const app = createApp(packages);
-export const rootReducer = app.reducer;
+export const reducers = packages.reduce((acc, pkg) => {
+  if (!pkg.reducers) return acc;
+  return { ...acc, ...pkg.reducers };
+}, {});

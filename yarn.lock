@@ -11802,12 +11802,14 @@ safe-regex@^2.1.1:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-saga-query@^0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/saga-query/-/saga-query-0.0.18.tgz#796dbdbc8e58b03691f177771b6321b2928ac3c0"
-  integrity sha512-Ok/MbSxe6csdrcYUpkMJH5RezHLiv1kAzIgDkgrEZqrqyUSAq901cjSypra/XPS6wAOc9rWs+DL9Yq2YK6XrOw==
+saga-query@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/saga-query/-/saga-query-1.0.0.tgz#8f7933f4e1966f31cfc66178a613e589ed778c07"
+  integrity sha512-BE+1pya06Rph4xHKvb4UxznYY13CV5Yl8aMvZUlfFyRg6SMf5NcXnO/wWSKHglURDS+tjE8lpDgbS7HwWp+lmg==
   dependencies:
+    redux-batched-actions "^0.5.0"
     redux-saga-creator "^2.0.1"
+    robodux "^11.0.2"
 
 sane@^4.0.3:
   version "4.1.0"
