@@ -1,5 +1,6 @@
 import { put, select } from 'redux-saga/effects';
 import { MapEntity } from 'robodux';
+import { setLoaderStart, setLoaderError, setLoaderSuccess } from 'saga-query';
 
 import {
   UpsertList,
@@ -94,7 +95,7 @@ export const createList = api.post<UpsertList>('/lists', function* (
     listIds.push(item.id);
     return acc;
   }, {});
-  ctx.loader.success = { id: ctx.name, meta: { list } };
+  ctx.loader = { id: ctx.name, meta: { list } };
   ctx.actions.push(
     addLists({ [list.id]: list }),
     addListItems(items),
@@ -118,7 +119,7 @@ export const updateList = api.put<UpsertList>('/lists/:id', function* (
   yield next();
   if (!ctx.response.ok) return;
   const list = deserializeList(ctx.response.data);
-  ctx.loader.success = { id: ctx.name, meta: { list } };
+  ctx.loader = { id: ctx.name, meta: { list } };
   ctx.actions.push(addLists({ [list.id]: list }));
 });
 
@@ -204,11 +205,11 @@ export const createListItem = api.post<UpsertListItem>(
       }),
     };
     yield next();
-    const { ok, data } = ctx.response;
-    if (!ok) return;
+    if (!ctx.response.ok) return;
+    const { data } = ctx.response;
     const listItem = deserializeListItem(data);
     const itemIds = yield select(selectItemIdsByList, { id: listId });
-    ctx.loader.success = { id: ctx.name, message: listItem.id };
+    ctx.loader = { id: ctx.name, message: listItem.id };
     ctx.actions.push(
       addListItems({ [listItem.id]: listItem }),
       addListItemIds({ [listId]: [...itemIds, listItem.id] }),
@@ -257,10 +258,10 @@ export const updateListItem = api.put<UpsertListItem>(
       }),
     };
     yield next();
-    const { ok, data } = ctx.response;
-    if (!ok) return;
+    if (!ctx.response.ok) return;
+    const { data } = ctx.response;
     const listItem = deserializeListItem(data);
-    ctx.loader.success = { id: ctx.name, message: listItem.id };
+    ctx.loader = { id: ctx.name, message: listItem.id };
     ctx.actions.push(addListItems({ [listItem.id]: listItem }));
   },
 );
@@ -301,7 +302,7 @@ export const deleteList = api.delete<ListPayload>('/lists/:listId', function* (
   const { ok } = ctx.response;
   if (!ok) return;
   const itemIds = yield select(selectItemIdsByList, { id: listId });
-  ctx.loader.success = { id: ctx.name, message: listId };
+  ctx.loader = { id: ctx.name, message: listId };
   ctx.actions.push(
     removeLists([listId]),
     removeListItemIds([listId]),
@@ -319,12 +320,13 @@ export const deleteListItem = api.delete<DeleteListItem>(
   function* (ctx: ApiCtx<any, DeleteListItem>, next): ApiGen {
     const { itemId, listId } = ctx.payload;
     const loader = deleteItemLoader(itemId);
-    ctx.loader.loading = { id: loader };
-    // yield put(setLoaderStart({ id: loader }));
+    yield put(setLoaderStart({ id: loader }));
     yield next();
     const { ok } = ctx.response;
     if (!ok) {
-      ctx.loader.error = { id: loader, message: ctx.response.data.message };
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
       return;
     }
 
@@ -332,8 +334,11 @@ export const deleteListItem = api.delete<DeleteListItem>(
       id: listId,
     });
     const newItemIds = itemIds.filter((id) => id !== itemId);
-    ctx.loader.success = { id: loader };
-    ctx.actions.push(addListItemIds({ [listId]: newItemIds }));
+
+    ctx.actions.push(
+      addListItemIds({ [listId]: newItemIds }),
+      setLoaderSuccess({ id: loader }),
+    );
   },
 );
 
@@ -350,11 +355,13 @@ export const fetchList = api.get<FetchList>(
       return;
     }
     const loader = fetchListLoader(username, listname);
-    ctx.loader.loading = { id: loader };
+    yield put(setLoaderStart({ id: loader }));
 
     yield next();
     if (!ctx.response.ok) {
-      ctx.loader.error = { id: loader, message: ctx.response.data.message };
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
       return;
     }
 
@@ -364,13 +371,13 @@ export const fetchList = api.get<FetchList>(
     const users = processUsers(data.users);
     const comments = processComments(data.comments);
 
-    ctx.loader.success = { id: loader };
     ctx.actions.push(
       addLists({ [list.id]: list }),
       addListItems(items),
       addListItemIds({ [list.id]: itemIds }),
       addUsers(users),
       addComments(comments),
+      setLoaderSuccess({ id: loader }),
     );
   },
 );

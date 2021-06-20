@@ -1,6 +1,7 @@
-import { select } from 'redux-saga/effects';
+import { select, put } from 'redux-saga/effects';
 import { createSelector } from 'reselect';
 import { createReducerMap, createTable, MapEntity } from 'robodux';
+import { setLoaderStart, setLoaderError, setLoaderSuccess } from 'saga-query';
 
 import { api, ApiCtx } from '@app/api';
 import {
@@ -133,10 +134,12 @@ export const approveSuggestion = api.post<ChangeSuggestion>(
   ): ApiGen {
     const { suggestionId } = ctx.payload;
     const loader = updateSuggestionLoader(suggestionId);
-    ctx.loader.loading = { id: loader };
+    yield put(setLoaderStart({ id: loader }));
     yield next();
     if (!ctx.response.ok) {
-      ctx.loader.error = { id: loader, message: ctx.response.data.message };
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
       return;
     }
     const { data } = ctx.response;
@@ -145,11 +148,11 @@ export const approveSuggestion = api.post<ChangeSuggestion>(
     const itemIds = yield select(selectItemIdsByList, {
       id: ctx.payload.listId,
     });
-    ctx.loader.success = { id: loader };
     ctx.actions.push(
       addSuggestions(suggestions),
       addListItems({ [listItem.id]: listItem }),
       addListItemIds({ [ctx.payload.listId]: [...itemIds, listItem.id] }),
+      setLoaderSuccess({ id: loader }),
     );
   },
 );
@@ -159,14 +162,20 @@ export const rejectSuggestion = api.post<ChangeSuggestion>(
   function* (ctx: ApiCtx<ListSuggestionResponse, ChangeSuggestion>, next) {
     const { suggestionId } = ctx.payload;
     const loader = updateSuggestionLoader(suggestionId);
-    ctx.loader.loading = { id: loader };
+    yield put(setLoaderStart({ id: loader }));
+
     yield next();
     if (!ctx.response.ok) {
-      ctx.loader.error = { id: loader, message: ctx.response.data.message };
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
       return;
     }
     const suggestions = processSuggestions([ctx.response.data]);
-    ctx.loader.success = { id: loader };
-    ctx.actions.push(addSuggestions(suggestions));
+    ctx.actions.push(
+      addSuggestions(suggestions),
+
+      setLoaderSuccess({ id: loader }),
+    );
   },
 );

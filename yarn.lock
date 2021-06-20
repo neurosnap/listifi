@@ -11802,10 +11802,10 @@ safe-regex@^2.1.1:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-saga-query@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/saga-query/-/saga-query-1.0.0.tgz#8f7933f4e1966f31cfc66178a613e589ed778c07"
-  integrity sha512-BE+1pya06Rph4xHKvb4UxznYY13CV5Yl8aMvZUlfFyRg6SMf5NcXnO/wWSKHglURDS+tjE8lpDgbS7HwWp+lmg==
+saga-query@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/saga-query/-/saga-query-1.0.1.tgz#194189ff1a932b71f58f843dea138f5329616a6d"
+  integrity sha512-Se2oc8LLDOacGuFbCtWwwqJRB5lmIYKKVSBOrTVgswXnopCwIUFii1Ts8GeO/b5aKgOclw/ZLmqEmv4qeX36WQ==
   dependencies:
     redux-batched-actions "^0.5.0"
     redux-saga-creator "^2.0.1"
