@@ -30,7 +30,7 @@ export const ListItemCreator = ({ listId }: { listId: string }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: `${createItem}` }),
+    selectLoaderById(state, { id: `${createListItem}` }),
   );
 
   const focusInput = () => {

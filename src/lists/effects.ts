@@ -298,22 +298,26 @@ export const orderListItems = api.post<OrderListItems>(
   },
 );
 
-export const deleteList = api.delete<{ listId: string }>(
-  '/lists/:listId',
-  function* (ctx: ApiCtx<any, { listId: string }>, next): ApiGen {
-    const { listId } = ctx.payload;
-    yield next();
-    const { ok } = ctx.response;
-    if (!ok) return;
-    const itemIds = yield select(selectItemIdsByList, { id: listId });
-    ctx.actions.push(
-      removeLists([listId]),
-      removeListItemIds([listId]),
-      removeListItems(itemIds),
-      setLoaderSuccess({ id: ctx.name, message: listId }),
-    );
-  },
-);
+interface ListPayload {
+  listId: string;
+}
+
+export const deleteList = api.delete<ListPayload>('/lists/:listId', function* (
+  ctx: ApiCtx<any, ListPayload>,
+  next,
+): ApiGen {
+  const { listId } = ctx.payload;
+  yield next();
+  const { ok } = ctx.response;
+  if (!ok) return;
+  const itemIds = yield select(selectItemIdsByList, { id: listId });
+  ctx.actions.push(
+    removeLists([listId]),
+    removeListItemIds([listId]),
+    removeListItems(itemIds),
+    setLoaderSuccess({ id: ctx.name, message: listId }),
+  );
+});
 
 interface DeleteListItem {
   listId: string;

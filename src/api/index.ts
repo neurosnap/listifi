@@ -67,7 +67,7 @@ function* onFetchApi(ctx: FetchCtx, next: Next): ApiGen {
   if (!url) return;
   const env = yield select(selectEnv);
   const baseUrl = env.apiUrl;
-  ctx.request.url = `${baseUrl}${url}`;
+  ctx.request.url = `${baseUrl}/api${url}`;
 
   ctx.response = yield call(fetchApi, ctx.request);
   yield next();
