@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router';
 import { authUsernameUrl, profileUrl } from '@app/routes';
 import { fetchData } from '@app/bootup';
 import { State } from '@app/types';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { isUuid } from '@app/validate';
 
 import { useLoaderSuccess } from './hooks';
@@ -25,7 +25,7 @@ export const LoginGoogle = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.loginGoogle }),
+    selectLoaderById(state, { id: `${loginGoogle}` }),
   );
   const appClientId = useSelector(selectClientId);
 

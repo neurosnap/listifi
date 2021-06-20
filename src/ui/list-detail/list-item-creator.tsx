@@ -16,7 +16,7 @@ import {
   createListItemBulk,
   defaultListItem,
 } from '@app/lists';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 
 import { useLoaderSuccess } from '../hooks';
 import { Typeahead, useTypeahead } from '../typeahead';
@@ -30,7 +30,7 @@ export const ListItemCreator = ({ listId }: { listId: string }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.createItem }),
+    selectLoaderById(state, { id: `${createListItem}` }),
   );
 
   const focusInput = () => {

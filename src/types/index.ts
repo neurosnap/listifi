@@ -1,3 +1,5 @@
+import { SagaIterator } from 'redux-saga';
+
 export * as dbTypes from './db';
 export * from './state';
 export * from './env';
@@ -17,4 +19,4 @@ export * from './api';
 export * from './suggestions';
 export * from './settings';
 
-export type ApiGen = Generator<any, any, any>;
+export type ApiGen<RT = void> = SagaIterator<RT>;

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import { selectCommentsByListId } from '@app/comments';
+import { selectCommentsByListId, fetchComments } from '@app/comments';
 import { State } from '@app/types';
 import { Box, Spinner, VStack } from '@chakra-ui/react';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { selectListById } from '@app/lists';
 import { PostComment } from './post-comment';
 import { Comment } from './comment';
@@ -17,7 +17,7 @@ export const ListComments = ({ listId }: { listId: string }) => {
     selectCommentsByListId(state, { id: listId }),
   );
   const fetchLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.fetchComments }),
+    selectLoaderById(state, { id: `${fetchComments}` }),
   );
 
   return (

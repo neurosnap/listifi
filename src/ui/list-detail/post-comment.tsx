@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link as RLink } from 'react-router-dom';
 
 import { createComment } from '@app/comments';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { loginUrl } from '@app/routes';
 import { selectHasTokenExpired } from '@app/token';
 import { State } from '@app/types';
@@ -29,7 +29,7 @@ export const PostComment = ({
   const dispatch = useDispatch();
   const hasTokenExpired = useSelector(selectHasTokenExpired);
   const postLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.createComment }),
+    selectLoaderById(state, { id: `${createComment}` }),
   );
   const [open, setOpen] = useState(false);
 

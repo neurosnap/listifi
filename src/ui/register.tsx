@@ -13,7 +13,7 @@ import {
 
 import { register } from '@app/auth';
 import { State } from '@app/types';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { selectClientId } from '@app/client-id';
 import { listCreateUrl } from '@app/routes';
 import { fetchData } from '@app/bootup';
@@ -29,7 +29,7 @@ export const Register = () => {
   const toast = useToast();
   const clientId = useSelector(selectClientId);
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.register }),
+    selectLoaderById(state, { id: `${register}` }),
   );
   const user = useSelector(selectUser);
   const [username, setUsername] = useState(user.username);

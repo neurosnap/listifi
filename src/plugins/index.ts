@@ -1,4 +1,3 @@
-import { apiFetch, ApiFetchResponse } from '@app/fetch';
 import { deserializeModelBase } from '@app/model-helpers';
 import {
   ApiPluginReponse,
@@ -6,8 +5,8 @@ import {
   PluginResponse,
   State,
 } from '@app/types';
-import { call, createEffects, put } from 'redux-cofx';
 import { createReducerMap, createTable, MapEntity } from 'robodux';
+import { api, ApiCtx } from '@app/api';
 
 export const defaultPlugin = (p: Partial<PluginClient> = {}): PluginClient => {
   const now = new Date().toISOString();
@@ -46,19 +45,12 @@ export const {
   selectTableAsList: selectPluginsAsList,
 } = slice.getSelectors((state: State) => state[PLUGIN_SLICE] || {});
 
-export function* onFetchPlugins() {
-  const res: ApiFetchResponse<ApiPluginReponse> = yield call(
-    apiFetch,
-    '/plugins',
-  );
-  if (!res.ok) {
-    return;
-  }
-
-  const plugins = processPlugins(res.data.plugins);
-  yield put(setPlugins(plugins));
-}
-
-export const { fetchPlugins } = createEffects({
-  fetchPlugins: onFetchPlugins,
+export const fetchPlugins = api.get('/plugins', function* (
+  ctx: ApiCtx<ApiPluginReponse>,
+  next,
+) {
+  yield next();
+  if (!ctx.response.ok) return;
+  const plugins = processPlugins(ctx.response.data.plugins);
+  ctx.actions.push(setPlugins(plugins));
 });

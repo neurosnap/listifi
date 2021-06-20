@@ -25,7 +25,7 @@ import {
   selectListById,
   updateListItem,
 } from '@app/lists';
-import { deleteItemLoader, Loaders, selectLoaderById } from '@app/loaders';
+import { deleteItemLoader, selectLoaderById } from '@app/loaders';
 import { ListItemClient, PluginData, State } from '@app/types';
 import { listDetailUrl } from '@app/routes';
 
@@ -48,7 +48,7 @@ function ListItemNameViewer({
   const dispatch = useDispatch();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const updateLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.updateListItem }),
+    selectLoaderById(state, { id: `${updateListItem}` }),
   );
   const deleteLoader = useSelector((state: State) =>
     selectLoaderById(state, { id: deleteItemLoader(item.id) }),

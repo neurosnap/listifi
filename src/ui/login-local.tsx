@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { login } from '@app/auth';
 import { State } from '@app/types';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { profileUrl } from '@app/routes';
 import { fetchData } from '@app/bootup';
 
@@ -16,7 +16,7 @@ export const LoginLocal = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.login }),
+    selectLoaderById(state, { id: `${login}` }),
   );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

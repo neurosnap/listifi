@@ -35,11 +35,7 @@ import {
   rejectSuggestion,
   selectSuggestionsByListId,
 } from '@app/plugin-suggestions';
-import {
-  Loaders,
-  selectLoaderById,
-  updateSuggestionLoader,
-} from '@app/loaders';
+import { selectLoaderById, updateSuggestionLoader } from '@app/loaders';
 import { selectHasTokenExpired, selectUser } from '@app/token';
 import { loginUrl, profileUrl, registerUrl } from '@app/routes';
 import { formatDate, isoToDate } from '@app/date';
@@ -51,7 +47,7 @@ import { RainbowRuler } from '../atoms';
 import { useLoaderSuccess } from '../hooks';
 
 async function onListMount({ list, dispatch }: PluginOnMount) {
-  dispatch(fetchSuggestions(list.id));
+  dispatch(fetchSuggestions({ listId: list.id }));
 }
 
 const SuggestionItem = ({
@@ -259,7 +255,7 @@ const MakeSuggestion = ({
     dispatch(createSuggestion({ text, listId: list.id, userId }));
   };
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.createSuggestion }),
+    selectLoaderById(state, { id: `${createSuggestion}` }),
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const typeahead = useTypeahead(text);

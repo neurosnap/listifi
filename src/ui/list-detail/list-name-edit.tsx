@@ -14,7 +14,7 @@ import {
 
 import { updateList } from '@app/lists';
 import { ListClient, State } from '@app/types';
-import { Loaders, selectLoaderById, resetLoaderById } from '@app/loaders';
+import { selectLoaderById, resetLoaderById } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { listDetailUrl } from '@app/routes';
 import { formatUrlName, NAME_CHAR_LIMIT, validListName } from '@app/validate';
@@ -38,7 +38,7 @@ export const ListNameEdit = ({
   };
   const user = useSelector(selectUser);
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.updateList }),
+    selectLoaderById(state, { id: `${updateList}` }),
   );
 
   const nameValidator = useValidator(validListName);
@@ -51,7 +51,7 @@ export const ListNameEdit = ({
     dispatch(updateList(nextList));
   };
   const cancel = () => {
-    dispatch(resetLoaderById(Loaders.updateList));
+    dispatch(resetLoaderById(`${updateList}`));
     setNextList(list);
     stopEditing();
   };

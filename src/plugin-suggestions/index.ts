@@ -1,17 +1,15 @@
-import { apiFetch, ApiFetchResponse } from '@app/fetch';
+import { select, put } from 'redux-saga/effects';
+import { createSelector } from 'reselect';
+import { createReducerMap, createTable, MapEntity } from 'robodux';
+import { setLoaderStart, setLoaderError, setLoaderSuccess } from 'saga-query';
+
+import { api, ApiCtx } from '@app/api';
 import {
   addListItemIds,
   addListItems,
   deserializeListItem,
   selectItemIdsByList,
 } from '@app/lists';
-import {
-  Loaders,
-  setLoaderError,
-  setLoaderStart,
-  setLoaderSuccess,
-  updateSuggestionLoader,
-} from '@app/loaders';
 import { deserializeModelBase } from '@app/model-helpers';
 import {
   ApiFetchListSuggestionsResponse,
@@ -22,9 +20,7 @@ import {
   ApiGen,
 } from '@app/types';
 import { addUsers, processUsers } from '@app/users';
-import { batch, call, createEffects, put, select } from 'redux-cofx';
-import { createSelector } from 'reselect';
-import { createReducerMap, createTable, MapEntity } from 'robodux';
+import { updateSuggestionLoader } from '@app/loaders';
 
 export const defaultListSuggestion = (
   s: Partial<ListSuggestion> = {},
@@ -91,28 +87,17 @@ function processSuggestions(
   }, {});
 }
 
-function* onFetchSuggestions(listId: string) {
-  const loaderName = Loaders.fetchSuggestions;
-  yield put(setLoaderStart({ id: loaderName }));
-  const res: ApiFetchResponse<ApiFetchListSuggestionsResponse> = yield call(
-    apiFetch,
-    `/suggestions/${listId}`,
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  const suggestions = processSuggestions(res.data.suggestions);
-  const users = processUsers(res.data.users);
-
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addSuggestions(suggestions),
-    addUsers(users),
-  ]);
-}
+export const fetchSuggestions = api.get<{ listId: string }>(
+  '/suggestions/:listId',
+  function* (ctx: ApiCtx<ApiFetchListSuggestionsResponse>, next) {
+    yield next();
+    if (!ctx.response.ok) return;
+    const { data } = ctx.response;
+    const suggestions = processSuggestions(data.suggestions);
+    const users = processUsers(data.users);
+    ctx.actions.push(addSuggestions(suggestions), addUsers(users));
+  },
+);
 
 export interface CreateSuggestion {
   userId: string;
@@ -120,104 +105,77 @@ export interface CreateSuggestion {
   text: string;
 }
 
-function* onCreateSuggestion({ listId, userId, text }: CreateSuggestion) {
-  const loaderName = Loaders.createSuggestion;
-  yield put(setLoaderStart({ id: loaderName }));
+export const createSuggestion = api.post<CreateSuggestion>(
+  '/suggestions/:listId',
+  function* (ctx: ApiCtx<ListSuggestionResponse, CreateSuggestion>, next) {
+    ctx.request = {
+      body: JSON.stringify({
+        user_id: ctx.payload.userId,
+        text: ctx.payload.text,
+      }),
+    };
+    yield next();
+    if (!ctx.response.ok) return;
+    const suggestions = processSuggestions([ctx.response.data]);
+    ctx.actions.push(addSuggestions(suggestions));
+  },
+);
 
-  const res: ApiFetchResponse<ListSuggestionResponse> = yield call(
-    apiFetch,
-    `/suggestions/${listId}`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ user_id: userId, text }),
-    },
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  const suggestions = processSuggestions([res.data]);
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addSuggestions(suggestions),
-  ]);
-}
-
-function* onApproveSuggestion({
-  listId,
-  suggestionId,
-}: {
+interface ChangeSuggestion {
   listId: string;
   suggestionId: string;
-}): ApiGen {
-  const loaderName = updateSuggestionLoader(suggestionId);
-  yield put(setLoaderStart({ id: loaderName }));
-
-  const res: ApiFetchResponse<ApproveSuggestionResponse> = yield call(
-    apiFetch,
-    `/suggestions/${listId}/approve/${suggestionId}`,
-    {
-      method: 'POST',
-    },
-  );
-
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
-
-  const suggestions = processSuggestions([res.data.suggestion]);
-  const listItem = deserializeListItem(res.data.item);
-  const itemIds = yield select(selectItemIdsByList, { id: listId });
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addSuggestions(suggestions),
-    addListItems({ [listItem.id]: listItem }),
-    addListItemIds({ [listId]: [...itemIds, listItem.id] }),
-  ]);
 }
 
-function* onRejectSuggestion({
-  listId,
-  suggestionId,
-}: {
-  listId: string;
-  suggestionId: string;
-}) {
-  const loaderName = updateSuggestionLoader(suggestionId);
-  yield put(setLoaderStart({ id: loaderName }));
+export const approveSuggestion = api.post<ChangeSuggestion>(
+  '/suggestions/:listId/approve/:suggestionId',
+  function* (
+    ctx: ApiCtx<ApproveSuggestionResponse, ChangeSuggestion>,
+    next,
+  ): ApiGen {
+    const { suggestionId } = ctx.payload;
+    const loader = updateSuggestionLoader(suggestionId);
+    yield put(setLoaderStart({ id: loader }));
+    yield next();
+    if (!ctx.response.ok) {
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
+      return;
+    }
+    const { data } = ctx.response;
+    const suggestions = processSuggestions([data.suggestion]);
+    const listItem = deserializeListItem(data.item);
+    const itemIds = yield select(selectItemIdsByList, {
+      id: ctx.payload.listId,
+    });
+    ctx.actions.push(
+      addSuggestions(suggestions),
+      addListItems({ [listItem.id]: listItem }),
+      addListItemIds({ [ctx.payload.listId]: [...itemIds, listItem.id] }),
+      setLoaderSuccess({ id: loader }),
+    );
+  },
+);
 
-  const res: ApiFetchResponse<ListSuggestionResponse> = yield call(
-    apiFetch,
-    `/suggestions/${listId}/reject/${suggestionId}`,
-    {
-      method: 'POST',
-    },
-  );
+export const rejectSuggestion = api.post<ChangeSuggestion>(
+  '/suggestions/:listId/reject/:suggestionId',
+  function* (ctx: ApiCtx<ListSuggestionResponse, ChangeSuggestion>, next) {
+    const { suggestionId } = ctx.payload;
+    const loader = updateSuggestionLoader(suggestionId);
+    yield put(setLoaderStart({ id: loader }));
 
-  if (!res.ok) {
-    yield put(setLoaderError({ id: loaderName, message: res.data.message }));
-    return;
-  }
+    yield next();
+    if (!ctx.response.ok) {
+      ctx.actions.push(
+        setLoaderError({ id: loader, message: ctx.response.data.message }),
+      );
+      return;
+    }
+    const suggestions = processSuggestions([ctx.response.data]);
+    ctx.actions.push(
+      addSuggestions(suggestions),
 
-  const suggestions = processSuggestions([res.data]);
-
-  yield batch([
-    setLoaderSuccess({ id: loaderName }),
-    addSuggestions(suggestions),
-  ]);
-}
-
-export const {
-  fetchSuggestions,
-  createSuggestion,
-  approveSuggestion,
-  rejectSuggestion,
-} = createEffects({
-  approveSuggestion: onApproveSuggestion,
-  createSuggestion: onCreateSuggestion,
-  fetchSuggestions: onFetchSuggestions,
-  rejectSuggestion: onRejectSuggestion,
-});
+      setLoaderSuccess({ id: loader }),
+    );
+  },
+);

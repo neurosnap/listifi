@@ -1,4 +1,6 @@
-import { LoadingItemState, MapEntity } from 'robodux';
+import { MapEntity } from 'robodux';
+import { QueryState } from 'saga-query';
+
 import { ListCommentClient } from './comments';
 import { Env } from './env';
 import { ListItemClient } from './list-items';
@@ -10,7 +12,7 @@ import { Token } from './token';
 import { UserClient } from './user';
 import { VerifyEmail } from './verify';
 
-export interface State {
+export interface State extends QueryState {
   env: Env;
   token: Token;
   lists: MapEntity<ListClient>;
@@ -18,7 +20,6 @@ export interface State {
   listItemIds: MapEntity<string[]>;
   listIdsPublic: string[];
   clientId: string;
-  loaders: MapEntity<LoadingItemState>;
   stars: MapEntity<StarClient>;
   users: MapEntity<UserClient>;
   usernameStarIds: MapEntity<string[]>;

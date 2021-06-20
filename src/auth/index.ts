@@ -1,145 +1,63 @@
-import { call, createEffects, put, select } from 'redux-cofx';
+import { call, put, select } from 'redux-saga/effects';
+import { Next, setLoaderSuccess } from 'saga-query';
 
 import { selectHasTokenExpired, selectUser, setToken } from '@app/token';
-import { apiFetch, ApiFetchResponse } from '@app/fetch';
 import {
   LoginLocalParams,
   RegisterParams,
   TokenResponse,
   ApiGen,
 } from '@app/types';
-import {
-  Loaders,
-  setLoaderError,
-  setLoaderStart,
-  setLoaderSuccess,
-} from '@app/loaders';
 import { selectClientId } from '@app/client-id';
 import { resetStore } from '@app/reset-store';
+import { api, ApiCtx } from '@app/api';
 
 interface AuthGoogle {
   token: string;
   clientId: string;
 }
 
-function* postLogin(clientToken: string, loaderName: Loaders): ApiGen {
-  yield put(setToken(clientToken));
+function* postLogin(ctx: ApiCtx<TokenResponse>): ApiGen {
+  if (!ctx.response.ok) return;
+  yield put(setToken(ctx.response.data.token));
   const user = yield select(selectUser);
-  yield put(setLoaderSuccess({ id: loaderName, meta: { user } }));
+  ctx.actions.push(setLoaderSuccess({ id: ctx.name, meta: { user } }));
 }
 
-function* onLoginGoogle(body: AuthGoogle): ApiGen {
-  const loaderName = Loaders.loginGoogle;
-
-  yield put(setLoaderStart({ id: loaderName }));
-
-  const resp: ApiFetchResponse<TokenResponse> = yield call(
-    apiFetch,
-    '/auth/login/google',
-    {
-      auth: false,
-      method: 'POST',
-      body: JSON.stringify(body),
-    },
-  );
-
-  if (!resp.ok) {
-    yield put(setLoaderError({ id: loaderName, message: resp.data.message }));
-    return;
-  }
-
-  const clientToken = resp.data.token;
-  yield call(postLogin, clientToken, loaderName);
+function* authBasic(ctx: ApiCtx<{ token: string }>, next: Next) {
+  ctx.request = {
+    body: JSON.stringify(ctx.payload),
+  };
+  yield next();
+  yield call(postLogin, ctx);
 }
 
-export function* onLoginGuest(): ApiGen {
-  const loaderName = Loaders.login;
+export const loginGoogle = api.post<AuthGoogle>(
+  '/auth/login/google',
+  authBasic,
+);
+export const login = api.post<LoginLocalParams>('/auth/login/local', authBasic);
+export const register = api.post<RegisterParams>('/auth/register', authBasic);
+
+export const loginGuest = api.post('/auth/login/guest', function* (
+  ctx: ApiCtx<TokenResponse>,
+  next,
+): ApiGen {
   const clientId = yield select(selectClientId);
   const hasTokenExpired = yield select(selectHasTokenExpired);
   if (!hasTokenExpired) {
     return;
   }
 
-  yield put(setLoaderStart({ id: loaderName }));
-  const resp: ApiFetchResponse<TokenResponse> = yield call(
-    apiFetch,
-    '/auth/login/guest',
-    {
-      auth: false,
-      method: 'POST',
-      body: JSON.stringify({ clientId }),
-    },
-  );
+  ctx.request = {
+    body: JSON.stringify({ clientId }),
+  };
+  yield next();
+  yield call(postLogin, ctx);
+});
 
-  if (!resp.ok) {
-    yield put(setLoaderError({ id: loaderName }));
-    return;
-  }
-
-  const clientToken = resp.data.token;
-  yield call(postLogin, clientToken, loaderName);
-}
-
-function* onLoginLocal(body: LoginLocalParams) {
-  const loaderName = Loaders.login;
-  yield put(setLoaderStart({ id: loaderName }));
-
-  const resp: ApiFetchResponse<TokenResponse> = yield call(
-    apiFetch,
-    '/auth/login/local',
-    {
-      auth: false,
-      method: 'POST',
-      body: JSON.stringify(body),
-    },
-  );
-
-  if (!resp.ok) {
-    yield put(setLoaderError({ id: loaderName, message: resp.data.message }));
-    return;
-  }
-
-  const clientToken = resp.data.token;
-  yield call(postLogin, clientToken, loaderName);
-}
-
-function* onLogout() {
-  yield call(apiFetch, '/auth/logout', { method: 'POST' });
+export const logout = api.post('/auth/logout', function* (ctx, next) {
+  yield next();
+  if (!ctx.response.ok) return;
   yield put(resetStore());
-}
-
-function* onRegister(body: RegisterParams) {
-  const loaderName = Loaders.register;
-
-  yield put(setLoaderStart({ id: loaderName }));
-  const resp: ApiFetchResponse<TokenResponse> = yield call(
-    apiFetch,
-    '/auth/register',
-    {
-      method: 'POST',
-      body: JSON.stringify(body),
-    },
-  );
-
-  if (!resp.ok) {
-    yield put(setLoaderError({ id: loaderName, message: resp.data.message }));
-    return;
-  }
-
-  const clientToken = resp.data.token;
-  yield call(postLogin, clientToken, loaderName);
-}
-
-export const {
-  register,
-  loginGoogle,
-  loginGuest,
-  login,
-  logout,
-} = createEffects({
-  loginGoogle: onLoginGoogle,
-  loginGuest: onLoginGuest,
-  login: onLoginLocal,
-  logout: onLogout,
-  register: onRegister,
 });

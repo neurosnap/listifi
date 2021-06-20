@@ -24,7 +24,7 @@ import {
 
 import { updateList, deleteList } from '@app/lists';
 import { ListClient, State } from '@app/types';
-import { Loaders, selectLoaderById, resetLoaderById } from '@app/loaders';
+import { selectLoaderById, resetLoaderById } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { profileUrl } from '@app/routes';
 import { validListName } from '@app/validate';
@@ -92,7 +92,7 @@ export const ListSettings = ({ list }: { list: ListClient }) => {
   };
   const user = useSelector(selectUser);
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.updateList }),
+    selectLoaderById(state, { id: `${updateList}` }),
   );
   const plugins = useSelector(selectPluginsAsList);
 
@@ -106,12 +106,12 @@ export const ListSettings = ({ list }: { list: ListClient }) => {
     dispatch(updateList(nextList));
   };
   const cancel = () => {
-    dispatch(resetLoaderById(Loaders.updateList));
+    dispatch(resetLoaderById(`${updateList}`));
     setNextList(list);
   };
 
   const remove = () => {
-    dispatch(deleteList(list.id));
+    dispatch(deleteList({ listId: list.id }));
     navigate(profileUrl(user.username));
     toast({
       title: 'List has been deleted!',
@@ -121,7 +121,7 @@ export const ListSettings = ({ list }: { list: ListClient }) => {
     });
   };
   const deleteLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.deleteList }),
+    selectLoaderById(state, { id: `${deleteList}` }),
   );
 
   useEffect(() => {

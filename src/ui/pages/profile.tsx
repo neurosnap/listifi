@@ -25,7 +25,7 @@ import {
   sortListByUpdated,
 } from '@app/lists';
 import { formatDate, isoToDate } from '@app/date';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { listCreateUrl, settingsUrl } from '@app/routes';
 import { selectUser } from '@app/token';
 
@@ -55,13 +55,13 @@ const ProfilePage = () => {
     user.createdAt,
   ]);
   const userLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.fetchUser }),
+    selectLoaderById(state, { id: `${fetchUser}` }),
   );
 
   useEffect(() => {
     if (username) {
-      dispatch(fetchUser(username));
-      dispatch(fetchStars(username));
+      dispatch(fetchUser({ username }));
+      dispatch(fetchStars({ username }));
     }
   }, [username]);
 

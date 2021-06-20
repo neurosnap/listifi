@@ -22,7 +22,7 @@ import { selectPluginsAsList } from '@app/plugins';
 import { selectHasTokenExpired } from '@app/token';
 import { createList } from '@app/lists';
 import { State } from '@app/types';
-import { Loaders, selectLoaderById } from '@app/loaders';
+import { selectLoaderById } from '@app/loaders';
 import { listDetailUrl } from '@app/routes';
 import { NAME_CHAR_LIMIT, validListName } from '@app/validate';
 
@@ -34,7 +34,7 @@ const CreateView = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: Loaders.createList }),
+    selectLoaderById(state, { id: `${createList}` }),
   );
   const plugins = useSelector(selectPluginsAsList);
   const ref = useRef<HTMLInputElement>(null);
