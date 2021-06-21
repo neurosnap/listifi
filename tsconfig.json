@@ -1,28 +1,23 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "baseUrl": ".",
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": false,
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "noUnusedLocals": true,
-    "removeComments": true,
-    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noEmit": true,
-    "target": "esnext",
-    "skipLibCheck": true,
-    "jsx": "react",
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "lib": ["es6", "dom"],
-    "module": "commonjs",
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
     "paths": {
-      "@app/*": ["src/*"]
-    },
+      "@app/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./src"]
 }

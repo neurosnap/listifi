@@ -7,13 +7,12 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "webpack --watch --config 'webpack/dev.web.js'",
-    "dev:server": "DEBUG=server:* webpack --watch --config 'webpack/dev.server.js'",
-    "build": "webpack --config 'webpack/prod.web.js'",
-    "build:server": "webpack --config 'webpack/prod.server.js'",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
     "server": "node dist/main.js",
     "lint": "eslint",
-    "test": "tsc --noEmit && eslint && yarn jest",
+    "test": "tsc && eslint && yarn jest",
     "schema": "ts-node schema.ts"
   },
   "devDependencies": {
