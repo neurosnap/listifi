@@ -54,7 +54,7 @@ const Welcome = () => {
                   boxShadow="md"
                   onClick={() => navigate(listCreateUrl())}
                 >
-                  Try it out
+                  Try it outs
                 </Button>
                 <Button
                   onClick={() => navigate(exploreUrl())}

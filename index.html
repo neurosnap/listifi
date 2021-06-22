@@ -18,7 +18,8 @@
     <link rel="stylesheet" href="/app.css">
   </head>
   <body {{bodyAttributes}}>
-    <div id="app"></div>
+    <div id="app"><!--ssr-outlet--></div>
+    <script type="module" src="/src/entry-client.js"></script>
     <script type="text/javascript">window.__PRELOADED_STATE__ = {{data}};</script>
   </body>
 </html>

@@ -1,12 +1,10 @@
 import ReactDOMServer from 'react-dom/server';
-import { createElement as h } from 'react';
 import path from 'path';
 import fs from 'fs';
 import Router from '@koa/router';
-import { StaticRouter } from 'react-router-dom/server';
 import util from 'util';
 import { ParameterizedContext } from 'koa';
-import { HelmetProvider, HelmetData } from 'react-helmet-async';
+import { ViteDevServer } from 'vite';
 
 import { App, createStore } from '@app/web';
 import { defaultEnv } from '@app/env';
@@ -261,7 +259,7 @@ const routes = [
   defaultRouteConfig({ route: ABOUT_URL }),
 ];
 
-function createSSR(config: RouteConfig) {
+function createSSR(config: RouteConfig, vite: ViteDevServer) {
   return async function ssrFn(
     ctx: ParameterizedContext<
       KoaState,
@@ -277,23 +275,25 @@ function createSSR(config: RouteConfig) {
     const token = getCookie(ctx);
     const { store } = createStore({ env, token, ...loadedData.state });
 
-    const helmetContext = {};
-    const app = ReactDOMServer.renderToString(
-      h(StaticRouter as any, { location: ctx.url }, [
-        h(HelmetProvider, { key: 'helmet', context: helmetContext }, [
-          h(App, { store, key: 'app' }, null),
-        ]),
-      ]),
-    );
-    const { helmet } = helmetContext as { helmet: HelmetData };
+    const indexFile = path.resolve(__dirname, '..', '..', 'index.html');
+    let template = await readFile(indexFile, 'utf8');
 
-    const indexFile = path.resolve('./public/index.html');
-    const data = await readFile(indexFile, 'utf8');
-    // A multilingual command line sentence tokenizer in Golang - neurosnap/sentences
-    let html = data.replace(
-      '<div id="app"></div>',
-      `<div id="app">${app}</div>`,
+    // 2. Apply vite HTML transforms. This injects the vite HMR client, and
+    //    also applies HTML transforms from Vite plugins, e.g. global preambles
+    //    from @vitejs/plugin-react-refresh
+    template = await vite.transformIndexHtml(ctx.url, template);
+
+    const { renderServer } = await vite.ssrLoadModule(
+      '/src/web/entry-server.ts',
     );
+
+    // 4. render the app HTML. This assumes entry-server.js's exported `render`
+    //    function calls appropriate framework SSR APIs,
+    //    e.g. ReactDOMServer.renderToString()
+    const { appHtml, helmet } = renderServer(ctx.url, store);
+
+    // 5. Inject the app-rendered HTML into the template.
+    let html = template.replace(`<!--ssr-outlet-->`, appHtml);
     html = html.replace(
       '{{data}}',
       JSON.stringify(store.getState()).replace(/</g, '\\u003c'),
@@ -310,9 +310,12 @@ function createSSR(config: RouteConfig) {
   };
 }
 
-export const ssr = new Router();
-export const notFound = createSSR(defaultRouteConfig({ route: '/404' }));
+export function createRoutes(vite: ViteDevServer) {
+  const ssr = new Router();
+  const notFound = createSSR(defaultRouteConfig({ route: '/404' }), vite);
 
-routes.forEach((routeConfig) => {
-  ssr.get(routeConfig.route, createSSR(routeConfig));
-});
+  routes.forEach((routeConfig) => {
+    ssr.get(routeConfig.route, createSSR(routeConfig, vite));
+  });
+  return { ssr, notFound };
+}
