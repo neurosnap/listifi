@@ -35,12 +35,10 @@ export async function generateImage(data: TemplateData) {
 
   // Set the content to our rendered HTML
   await page.setContent(html, { waitUntil: 'domcontentloaded' });
-  const fname = `public/${data.list.username}_${data.list.urlName}.png`;
 
   const screenshotBuffer = await page.screenshot({
     fullPage: false,
     type: 'png',
-    path: fname,
   });
 
   if (!screenshotBuffer) {
@@ -51,5 +49,5 @@ export async function generateImage(data: TemplateData) {
 
   // await writeFile(fname, screenshotBuffer.toString());
 
-  return fname;
+  return screenshotBuffer;
 }

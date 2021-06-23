@@ -23,6 +23,7 @@ import {
   settingsRouter,
 } from './api';
 import { db } from './knex';
+import { ogRouter } from './og';
 
 const app = new Koa();
 const log = debug('server:index');
@@ -66,6 +67,8 @@ app
   .use(suggestionsRouter.allowedMethods())
   .use(settingsRouter.routes())
   .use(settingsRouter.allowedMethods())
+  .use(ogRouter.routes())
+  .use(ogRouter.allowedMethods())
   .use(ssr.routes())
   .use(ssr.allowedMethods())
   .use(serve('./public'));
