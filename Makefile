@@ -6,6 +6,11 @@ PGUSER?="postgres"
 PORT?="5432"
 DB_CONTAINER?=listifi_db_1
 
+# run this command to login after adding docker-machine creds
+# gcloud auth application-default login
+# authenticate to push to image repository
+# gcloud auth configure-docker
+
 init:
 	gcloud --project $(PROJECT_ID) auth configure-docker
 .PHONY: init
