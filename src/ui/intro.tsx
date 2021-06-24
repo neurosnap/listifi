@@ -20,7 +20,7 @@ export const IntroView = () => {
   const dispatch = useDispatch();
   const hasTokenExpired = useSelector(selectHasTokenExpired);
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: `${login}` }),
+    selectLoaderById(state, { id: `${loginGuest}` }),
   );
   const login = () => {
     navigate(loginUrl());
