@@ -21,9 +21,10 @@ import {
   listItemsRouter,
   suggestionsRouter,
   settingsRouter,
+  ogRouter,
 } from './api';
 import { db } from './knex';
-import { ogRouter } from './og';
+import { redis } from './redis';
 
 const app = new Koa();
 const log = debug('server:index');
@@ -87,6 +88,7 @@ const server = app.listen(port, () => {
 
 async function onShutdown() {
   await db.destroy();
+  redis.quit();
 }
 
 shutdown(server, {

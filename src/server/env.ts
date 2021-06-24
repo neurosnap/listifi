@@ -13,6 +13,7 @@ export const env = {
   apiUrl: process.env.API_URL || 'listifi.app',
   sendGridApiKey: process.env.SENDGRID_API_KEY || '',
   databaseUrl: process.env.DATABASE_URL || '',
+  redisPassword: process.env.REDIS_PASSWORD || '',
 };
 
 export const COOKIE_TOKEN = 'token';

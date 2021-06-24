@@ -7,7 +7,7 @@ import { ListClient, ListItemClient, ListCommentClient } from '@app/types';
 
 const readFile = util.promisify(fs.readFile);
 
-interface TemplateData {
+export interface TemplateData {
   list: ListClient;
   items: MapEntity<ListItemClient>;
   itemIds: string[];
