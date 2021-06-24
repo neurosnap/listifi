@@ -1,11 +1,11 @@
 import puppeteer from 'puppeteer';
 import { MapEntity } from 'robodux';
-// import util from 'util';
-// import fs from 'fs';
+import util from 'util';
+import fs from 'fs';
 
 import { ListClient, ListItemClient, ListCommentClient } from '@app/types';
 
-// const writeFile = util.promisify(fs.writeFile);
+const readFile = util.promisify(fs.readFile);
 
 interface TemplateData {
   list: ListClient;
@@ -14,19 +14,39 @@ interface TemplateData {
   comments: MapEntity<ListCommentClient>;
 }
 
-function compileTemplate({ list, itemIds, comments }: TemplateData): string {
+export async function compileTemplate({
+  list,
+  itemIds,
+  comments,
+}: TemplateData): Promise<string> {
   /* const itemList = itemIds
     .map((id) => items[id])
     .filter(excludesFalse)
     .map((item) => `<li>${item.text}</li>`)
     .slice(0, 3)
     .join(''); */
+  const regular = await readFile('./public/OpenSans-Regular.ttf', {
+    encoding: 'base64',
+  });
+  const bold = await readFile('./public/OpenSans-SemiBold.ttf', {
+    encoding: 'base64',
+  });
+
   return `<!DOCTYPE html><html>
   <head>
     <style>
+      @font-face {
+        font-family: OpenSans;
+        src: url(data:font/truetype;charset=utf-8;base64,${regular});
+      }
+      @font-face {
+        font-family: OpenSans;
+        font-weight: bold;
+        src: url(data:font/truetype;charset=utf-8;base64,${bold});
+      }
+
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        font-family: OpenSans;
         width: 1200px;
         height: 600px;
         padding: 0;
@@ -153,17 +173,20 @@ function compileTemplate({ list, itemIds, comments }: TemplateData): string {
 }
 
 export async function generateImage(data: TemplateData) {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+  const browser = await puppeteer.launch({
+    args: ['--font-render-hinting=none', '--force-color-profile=srgb'],
+  });
 
   console.log(data);
   // Render some HTML from the relevant template
-  const html = compileTemplate(data);
+  const html = await compileTemplate(data);
 
   // Create a new page
   const page = await browser.newPage();
 
   // Set the content to our rendered HTML
   await page.setContent(html, { waitUntil: 'domcontentloaded' });
+  await page.evaluateHandle('document.fonts.ready');
 
   const screenshotBuffer = await page.screenshot({
     fullPage: false,

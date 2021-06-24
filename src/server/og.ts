@@ -3,14 +3,17 @@ import Router from '@koa/router';
 import { deserializeList, processListItems } from '@app/lists';
 import { processComments } from '@app/comments';
 
-import { generateImage, fetchListDetailData } from './services';
+import {
+  // compileTemplate,
+  generateImage,
+  fetchListDetailData,
+} from './services';
 
 export const ogRouter = new Router({ prefix: '/og' });
 
 ogRouter.get('/:username/:listname', async (ctx) => {
   const { username, listname } = ctx.params;
   const result = await fetchListDetailData(username, listname);
-  ctx.type = 'image/png';
   if (!result.success) {
     ctx.body = '';
     return;
@@ -19,6 +22,10 @@ ogRouter.get('/:username/:listname', async (ctx) => {
   const { items, itemIds } = processListItems(result.data.items);
   const comments = processComments(result.data.comments);
 
-  const imageData = await generateImage({ list, itemIds, items, comments });
+  const data = { list, itemIds, items, comments };
+  const imageData = await generateImage(data);
+  ctx.type = 'image/png';
+  //const imageData = compileTemplate(data);
+  // ctx.type = 'text/html';
   ctx.body = imageData;
 });
