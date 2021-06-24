@@ -11,3 +11,4 @@ export * from './og-data';
 export * from './name-generator';
 export * from './lists';
 export * from './plugins';
+export * from './generate-image';
