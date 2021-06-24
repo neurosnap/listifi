@@ -1,5 +1,5 @@
 import { call, put, select } from 'redux-saga/effects';
-import { Next, setLoaderSuccess } from 'saga-query';
+import { Next } from 'saga-query';
 
 import { selectHasTokenExpired, selectUser, setToken } from '@app/token';
 import {
@@ -21,7 +21,7 @@ function* postLogin(ctx: ApiCtx<TokenResponse>): ApiGen {
   if (!ctx.response.ok) return;
   yield put(setToken(ctx.response.data.token));
   const user = yield select(selectUser);
-  ctx.actions.push(setLoaderSuccess({ id: ctx.name, meta: { user } }));
+  ctx.loader = { id: ctx.name, meta: { user } };
 }
 
 function* authBasic(ctx: ApiCtx<{ token: string }>, next: Next) {
