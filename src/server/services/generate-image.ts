@@ -65,7 +65,8 @@ export async function compileTemplate({
 
       .top {
         margin-top: 100px;
-        margin-left: 50px;
+        margin-left: 70px;
+        margin-right: 70px;
       }
 
       .list {
@@ -79,12 +80,13 @@ export async function compileTemplate({
       }
 
       .header {
-        font-size: 60px;
+        font-size: 70px;
+        color: #3A3B3C;
       }
 
       .desc {
-        font-size: 40px;
-        margin: 40px 0;
+        font-size: 30px;
+        margin: 30px 0;
         color: #666;
       }
 
@@ -100,8 +102,8 @@ export async function compileTemplate({
       }
 
       .footer {
-        margin-left: 50px;
-        margin-right: 50px;
+        margin-left: 70px;
+        margin-right: 70px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -109,12 +111,12 @@ export async function compileTemplate({
       }
 
       .brand {
-        width: 200px;
         height: 100%;
       }
 
       .metrics {
-        width: 450px;
+        width: 500px;
+        margin-bottom: 30px;
         display: flex;
         justify-content: space-between;
       }
@@ -150,16 +152,16 @@ export async function compileTemplate({
       <div class="footer">
         <div class="metrics">
           <div>
+            <div>${itemIds.length}</div>
+            <div>items</div>
+          </div>
+          <div>
             <div>${list.stars}</div>
             <div>stars</div>
           </div>
           <div>
             <div>${Object.values(comments).length}</div>
             <div>comments</div>
-          </div>
-          <div>
-            <div>${itemIds.length}</div>
-            <div>items</div>
           </div>
         </div>
         <div class="brand">
@@ -177,7 +179,6 @@ export async function generateImage(data: TemplateData) {
     args: ['--font-render-hinting=none', '--force-color-profile=srgb'],
   });
 
-  console.log(data);
   // Render some HTML from the relevant template
   const html = await compileTemplate(data);
 

@@ -25,7 +25,7 @@ ogRouter.get('/:username/:listname', async (ctx) => {
   const data = { list, itemIds, items, comments };
   const imageData = await generateImage(data);
   ctx.type = 'image/png';
-  //const imageData = compileTemplate(data);
+  // const imageData = await compileTemplate(data);
   // ctx.type = 'text/html';
   ctx.body = imageData;
 });
