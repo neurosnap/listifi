@@ -176,7 +176,11 @@ export async function compileTemplate({
 
 export async function generateImage(data: TemplateData) {
   const browser = await puppeteer.launch({
-    args: ['--font-render-hinting=none', '--force-color-profile=srgb'],
+    args: [
+      '--no-sandbox',
+      '--font-render-hinting=none',
+      '--force-color-profile=srgb',
+    ],
   });
 
   // Render some HTML from the relevant template
