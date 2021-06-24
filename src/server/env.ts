@@ -14,6 +14,7 @@ export const env = {
   sendGridApiKey: process.env.SENDGRID_API_KEY || '',
   databaseUrl: process.env.DATABASE_URL || '',
   redisPassword: process.env.REDIS_PASSWORD || '',
+  redisHost: process.env.REDIS_HOST || 'localhost',
 };
 
 export const COOKIE_TOKEN = 'token';
