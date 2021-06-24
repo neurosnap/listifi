@@ -128,6 +128,7 @@ const ListDetailPage = () => {
         <meta property="og:image" content={ogImage} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
+        <meta name="twitter:image:src" content={ogImage} />
       </Helmet>
       <Container maxW="3xl" p={0}>
         {content}
