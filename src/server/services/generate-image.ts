@@ -23,7 +23,7 @@ export interface TemplateData {
 }
 
 interface ImageCache {
-  data: string;
+  image: string;
   expiresAt: string;
 }
 
@@ -85,7 +85,7 @@ export async function generateListDetailImage(
     }
 
     log(`${key} cache found, using it`);
-    const buff = Buffer.from(jso.data, 'base64');
+    const buff = Buffer.from(jso.image, 'base64');
     return {
       success: true,
       data: {

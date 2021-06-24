@@ -5,6 +5,7 @@ PGHOST?="db"
 PGUSER?="postgres"
 PORT?="5432"
 DB_CONTAINER?=listifi_db_1
+REDIS_CONTAINER?=listifi_redis_1
 
 # run this command to login after adding docker-machine creds
 # gcloud auth application-default login
@@ -98,3 +99,7 @@ seed:
 psql:
 	docker exec -it $(DB_CONTAINER) psql -U $(PGUSER)
 .PHONY: psql
+
+redis:
+	docker exec -it $(REDIS_CONTAINER) redis-cli -a '$(REDIS_PASSWORD)'
+.PHONY: redis
