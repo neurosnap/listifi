@@ -45,7 +45,6 @@ export const RouterApp = () => {
     <>
       <Helmet>
         <meta property="og:image" content={`${urlPrefix}/listifi_card.png`} />
-        <meta name="twitter:image" content={`${urlPrefix}/listifi_card.png`} />
       </Helmet>
       <Routes>
         <Route path={HOME_URL}>
