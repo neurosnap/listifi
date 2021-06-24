@@ -347,11 +347,6 @@ interface FetchList {
   listname: string;
 }
 
-export const fetchOgImage = api.get<FetchList>(
-  '/og/:username/:listname',
-  api.request({ raw: true }),
-);
-
 export const fetchList = api.get<FetchList>(
   '/lists/:username/:listname',
   function* (ctx: ApiCtx<FetchListResponse, FetchList>, next) {

@@ -11,12 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { Helmet } from 'react-helmet-async';
 
-import {
-  fetchList,
-  selectListByUrl,
-  updateList,
-  fetchOgImage,
-} from '@app/lists';
+import { fetchList, selectListByUrl, updateList } from '@app/lists';
 import { ListClient, State } from '@app/types';
 import { selectLoaderById, fetchListLoader } from '@app/loaders';
 import { selectUser } from '@app/token';
@@ -70,7 +65,6 @@ const ListDetailPage = () => {
   useEffect(() => {
     dispatch(fetchList({ username, listname }));
     dispatch(fetchListComments({ listId: list.id }));
-    dispatch(fetchOgImage({ username, listname }));
   }, [username, listname]);
 
   useLoaderSuccess(updateLoader, () => {

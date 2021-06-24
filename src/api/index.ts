@@ -13,7 +13,6 @@ import { ApiGen } from '@app/types';
 interface FetchApiOpts extends RequestInit {
   url?: string;
   quickSave?: boolean;
-  raw?: boolean;
 }
 
 export interface ApiCtx<D = any, P = any, E = any> extends FetchCtx<D, E, P> {
@@ -67,15 +66,11 @@ function* fetchApi(request: FetchApiOpts): ApiGen<FetchCtx['response']> {
 }
 
 function* onFetchApi(ctx: ApiCtx, next: Next): ApiGen {
-  const { url = '', raw = false } = ctx.request;
+  const { url = '' } = ctx.request;
   if (!url) return;
   const env = yield select(selectEnv);
   const baseUrl = env.apiUrl;
-  if (raw) {
-    ctx.request.url = `${baseUrl}${url}`;
-  } else {
-    ctx.request.url = `${baseUrl}/api${url}`;
-  }
+  ctx.request.url = `${baseUrl}/api${url}`;
 
   ctx.response = yield call(fetchApi, ctx.request);
   yield next();

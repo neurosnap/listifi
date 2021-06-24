@@ -1,11 +1,19 @@
 import puppeteer from 'puppeteer';
+import debug from 'debug';
 import { MapEntity } from 'robodux';
 import util from 'util';
 import fs from 'fs';
 
+import { deserializeList, processListItems } from '@app/lists';
+import { processComments } from '@app/comments';
 import { ListClient, ListItemClient, ListCommentClient } from '@app/types';
 
+import { fetchListDetailData } from './lists';
+import { FnResult } from '../types';
+import { redisGet, redisSet } from '../redis';
+
 const readFile = util.promisify(fs.readFile);
+const log = debug('server:services:generate-image');
 
 export interface TemplateData {
   list: ListClient;
@@ -14,7 +22,85 @@ export interface TemplateData {
   comments: MapEntity<ListCommentClient>;
 }
 
-export async function compileTemplate({
+interface ImageCache {
+  data: string;
+  expiresAt: string;
+}
+
+interface ImageResult {
+  image: Buffer;
+  expiresAt: string;
+}
+
+function getKey(username: string, listname: string) {
+  return `${username}/${listname}`;
+}
+
+async function processImage(data: TemplateData) {
+  const key = getKey(data.list.username, data.list.urlName);
+  const imageData = await generateImage(data);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const imageCache = {
+    expiresAt: tomorrow.toISOString(),
+    image: imageData.toString('base64'),
+  };
+
+  redisSet(key, JSON.stringify(imageCache));
+
+  return {
+    expiresAt: imageCache.expiresAt,
+    image: imageData as Buffer,
+  };
+}
+
+export async function generateListDetailImage(
+  username: string,
+  listname: string,
+): Promise<FnResult<ImageResult>> {
+  const result = await fetchListDetailData(username, listname);
+  if (!result.success) {
+    return {
+      success: false,
+      data: {
+        status: 404,
+        message: 'list not found',
+      },
+    };
+  }
+
+  const list = deserializeList(result.data.list);
+  const { items, itemIds } = processListItems(result.data.items);
+  const comments = processComments(result.data.comments);
+  const data = { list, itemIds, items, comments };
+  const key = getKey(username, listname);
+  const cache = await redisGet(key);
+  if (cache) {
+    const jso: ImageCache = JSON.parse(cache);
+    if (new Date(jso.expiresAt) < new Date()) {
+      log(`${key} has expired, processing new image`);
+      const imageCache = await processImage(data);
+      return { success: true, data: imageCache };
+    }
+
+    log(`${key} cache found, using it`);
+    const buff = Buffer.from(jso.data, 'base64');
+    return {
+      success: true,
+      data: {
+        expiresAt: jso.expiresAt,
+        image: buff,
+      },
+    };
+  }
+
+  log(`${key} no cache found, processing new image`);
+  const imageCache = await processImage(data);
+  return { success: true, data: imageCache };
+}
+
+async function compileTemplate({
   list,
   itemIds,
   comments,
@@ -174,7 +260,7 @@ export async function compileTemplate({
 </html>`;
 }
 
-export async function generateImage(data: TemplateData) {
+async function generateImage(data: TemplateData) {
   const browser = await puppeteer.launch({
     args: [
       '--no-sandbox',

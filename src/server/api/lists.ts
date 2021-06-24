@@ -18,7 +18,12 @@ import { getBody, requireBody, sendBody } from '../body';
 import { db } from '../knex';
 import { listQueryBuilder } from '../query';
 import { jwtOptions } from '../env';
-import { createItems, getLastOrder, textToItems } from '../services';
+import {
+  createItems,
+  getLastOrder,
+  textToItems,
+  generateListDetailImage,
+} from '../services';
 import {
   fetchListDetailData,
   fetchPublicListData,
@@ -39,6 +44,7 @@ listRouter.get('/:username/:listname', async (ctx) => {
   if (!result.success) {
     return ctx.throw(result.data.status, result.data.message);
   }
+  generateListDetailImage(username, listname);
 
   sendBody<FetchListResponse>(ctx, result.data);
 });
