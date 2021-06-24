@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Routes, Route } from 'react-router-dom';
 
 import {
@@ -36,10 +37,16 @@ import {
   AUTH_USERNAME_URL,
   ABOUT_URL,
 } from '@app/routes';
+import { getUrlPrefix } from '@app/url';
 
 export const RouterApp = () => {
+  const urlPrefix = getUrlPrefix();
   return (
     <Routes>
+      <Helmet>
+        <meta property="og:image" content={`${urlPrefix}/listifi_card.png`} />
+        <meta name="twitter:image" content={`${urlPrefix}/listifi_card.png`} />
+      </Helmet>
       <Route path={HOME_URL}>
         <WelcomePage />
       </Route>

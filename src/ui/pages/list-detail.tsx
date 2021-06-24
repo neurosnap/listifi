@@ -17,6 +17,7 @@ import { selectLoaderById, fetchListLoader } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { listDetailUrl } from '@app/routes';
 import { fetchListComments } from '@app/comments';
+import { getUrlPrefix } from '@app/url';
 
 import { RainbowRuler } from '../atoms';
 import { usePlugins } from '../use-plugins';
@@ -117,13 +118,17 @@ const ListDetailPage = () => {
 
   const description = list.description ? list.description : 'listifi';
   const title = `${username}/${listname} -- ${description}`;
+  const urlPrefix = getUrlPrefix();
+  const ogImage = `${urlPrefix}/og/${username}/${listname}`;
   return (
     <>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
       </Helmet>

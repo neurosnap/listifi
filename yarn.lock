@@ -11844,6 +11844,13 @@ robodux@^11.0.2:
   dependencies:
     immer "^8.0.1"
 
+robodux@^11.0.3:
+  version "11.0.3"
+  resolved "https://registry.yarnpkg.com/robodux/-/robodux-11.0.3.tgz#0ff6a8f0afa7e8499562f09b9f6dec9bd1ef5873"
+  integrity sha512-Xg91iUR0yos2QHNXvpN0H4IkZNptjeIyKknx6UY4Js4zkXwunb9eNXBVyrw9NTrKeIyb4jxFUODMmc2Y11NUrg==
+  dependencies:
+    immer "^8.0.1"
+
 rsvp@^4.8.4:
   version "4.8.5"
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
@@ -11902,14 +11909,14 @@ safe-regex@^2.1.1:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-saga-query@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/saga-query/-/saga-query-1.0.1.tgz#194189ff1a932b71f58f843dea138f5329616a6d"
-  integrity sha512-Se2oc8LLDOacGuFbCtWwwqJRB5lmIYKKVSBOrTVgswXnopCwIUFii1Ts8GeO/b5aKgOclw/ZLmqEmv4qeX36WQ==
+saga-query@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/saga-query/-/saga-query-1.0.2.tgz#f21ed35ea8cd3013ccca37a98c4cb0b5f8bdae07"
+  integrity sha512-QYXZxrFf15LO7VvLq+685oEAqxvGNNdA//Kkaxegqw3NDAooUyM3g8/togdb6Yf/VZEL6uwGjopkdkuSzUssgw==
   dependencies:
     redux-batched-actions "^0.5.0"
     redux-saga-creator "^2.0.1"
-    robodux "^11.0.2"
+    robodux "^11.0.3"
 
 sane@^4.0.3:
   version "4.1.0"
