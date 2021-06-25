@@ -93,6 +93,7 @@ export async function generateListDetailImage(
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, width, height);
   const marginX = 70;
+  const marginY = 160;
   const widthLength = width - marginX * 2;
 
   const titleFontSize = 70;
@@ -102,22 +103,24 @@ export async function generateListDetailImage(
   const lines = wrapLines(ctx, titleText, widthLength).slice(0, 2);
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
-    ctx.fillText(line, marginX, 150 + titleFontSize * i);
+    ctx.fillText(line, marginX, marginY + titleFontSize * i);
   }
 
-  const subFontSize = 30;
+  const subFontSize = 40;
   ctx.font = `normal normal ${subFontSize}px opensans`;
   ctx.fillStyle = '#666';
-  const descLines = wrapLines(ctx, list.description, widthLength).slice(0, 2);
+  const descLines = wrapLines(ctx, list.description, widthLength).slice(0, 3);
   for (let i = 0; i < descLines.length; i += 1) {
     const line = descLines[i];
     ctx.fillText(
       line,
       marginX,
-      150 + lines.length * titleFontSize + (subFontSize + 10) * i,
+      marginY + 10 + lines.length * titleFontSize + (subFontSize + 10) * i,
     );
   }
 
+  const metricFontSize = 30;
+  ctx.font = `normal normal ${metricFontSize}px opensans`;
   ctx.fillStyle = '#3A3B3C';
   const metricsY = 500;
   const metricsPad = 180;
