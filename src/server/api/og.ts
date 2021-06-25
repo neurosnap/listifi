@@ -12,5 +12,5 @@ ogRouter.get('/:username/:listname', async (ctx) => {
   }
 
   ctx.type = 'image/png';
-  ctx.body = result.data.image;
+  ctx.body = result.data;
 });
