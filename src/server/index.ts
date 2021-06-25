@@ -24,7 +24,6 @@ import {
   ogRouter,
 } from './api';
 import { db } from './knex';
-import { redis } from './redis';
 
 const app = new Koa();
 const log = debug('server:index');
@@ -88,7 +87,6 @@ const server = app.listen(port, () => {
 
 async function onShutdown() {
   await db.destroy();
-  redis.quit();
 }
 
 shutdown(server, {
