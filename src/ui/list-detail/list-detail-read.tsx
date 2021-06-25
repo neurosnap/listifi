@@ -28,8 +28,8 @@ import {
   selectUser,
 } from '@app/token';
 import { listDetailUrl, profileUrl } from '@app/routes';
-import { getUrlPrefix } from '@app/url';
 import { ListText } from './list-text';
+import { useUrlPrefix } from '../hooks';
 
 const noop = () => {};
 export const ListDetailRead = ({
@@ -41,6 +41,7 @@ export const ListDetailRead = ({
 }) => {
   const dispatch = useDispatch();
   const toast = useToast();
+  const urlPrefix = useUrlPrefix();
   const userHasStarred = useSelector((state: State) =>
     selectStarByListId(state, { id: list.id }),
   );
@@ -49,10 +50,7 @@ export const ListDetailRead = ({
   const canStar = !isGuest && !hasTokenExpired;
   const user = useSelector(selectUser);
   const canEdit = user.id === list.ownerId;
-  const copyUrl = `${getUrlPrefix()}${listDetailUrl(
-    list.username,
-    list.urlName,
-  )}`;
+  const copyUrl = `${urlPrefix}${listDetailUrl(list.username, list.urlName)}`;
   const { onCopy } = useClipboard(copyUrl);
   const copy = () => {
     onCopy();

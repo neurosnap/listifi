@@ -18,9 +18,8 @@ import { selectLoaderById, resetLoaderById } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { listDetailUrl } from '@app/routes';
 import { formatUrlName, NAME_CHAR_LIMIT, validListName } from '@app/validate';
-import { getUrlPrefix } from '@app/url';
 
-import { useValidator } from '../hooks';
+import { useValidator, useUrlPrefix } from '../hooks';
 
 export const ListNameEdit = ({
   stopEditing,
@@ -40,6 +39,7 @@ export const ListNameEdit = ({
   const loader = useSelector((state: State) =>
     selectLoaderById(state, { id: `${updateList}` }),
   );
+  const urlPrefix = useUrlPrefix();
 
   const nameValidator = useValidator(validListName);
   const save = (e: any) => {
@@ -94,7 +94,7 @@ export const ListNameEdit = ({
           onChange={(e) => update({ name: e.currentTarget.value })}
           onKeyDown={keydown}
         />
-        <FormHelperText>{`${getUrlPrefix()}${url}`}</FormHelperText>
+        <FormHelperText>{`${urlPrefix}${url}`}</FormHelperText>
         <FormHelperText>
           This name must be unique to all your lists. If you change the name of
           the list then the url will be updated as well. The list name cannot

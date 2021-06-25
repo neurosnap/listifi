@@ -17,14 +17,13 @@ import { selectLoaderById, fetchListLoader } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { listDetailUrl } from '@app/routes';
 import { fetchListComments } from '@app/comments';
-import { getUrlPrefix } from '@app/url';
 
 import { RainbowRuler } from '../atoms';
 import { usePlugins } from '../use-plugins';
 import { ListDetailItemsView } from '../list-detail/list-detail-items';
 import { ListDetailRead } from '../list-detail/list-detail-read';
 import { ListNameEdit } from '../list-detail/list-name-edit';
-import { useLoaderSuccess } from '../hooks';
+import { useLoaderSuccess, useUrlPrefix } from '../hooks';
 import { ListItemDetailModal } from '../list-detail/list-item-detail-modal';
 import { ListComments } from '../list-detail/list-comments';
 
@@ -47,6 +46,7 @@ const ListDetailPage = () => {
   const toast = useToast();
   const canEdit = user.id === list.ownerId;
   const pluginData = usePlugins(list);
+  const urlPrefix = useUrlPrefix();
   const nameRef = useRef<HTMLInputElement>(null);
   const edit = () => {
     if (!canEdit) {
@@ -118,7 +118,6 @@ const ListDetailPage = () => {
 
   const description = list.description ? list.description : 'listifi';
   const title = `${username}/${listname} -- ${description}`;
-  const urlPrefix = getUrlPrefix();
   const ogImage = `${urlPrefix}/og/${username}/${listname}`;
   return (
     <>

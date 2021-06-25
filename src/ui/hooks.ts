@@ -6,6 +6,11 @@ import { LoadingState } from 'robodux';
 import { defaultValidation, Validation } from '@app/validate';
 import { selectEnv } from '@app/env';
 
+export function useUrlPrefix() {
+  const { apiUrl } = useSelector(selectEnv);
+  return apiUrl;
+}
+
 export function useDebounce<T>(value: T, delay?: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 

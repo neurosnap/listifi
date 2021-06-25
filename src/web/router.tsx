@@ -18,6 +18,7 @@ import {
   SettingsPage,
   AuthUsernamePage,
   AboutPage,
+  useUrlPrefix,
 } from '@app/ui';
 import {
   EXPLORE_URL,
@@ -37,10 +38,9 @@ import {
   AUTH_USERNAME_URL,
   ABOUT_URL,
 } from '@app/routes';
-import { getUrlPrefix } from '@app/url';
 
 export const RouterApp = () => {
-  const urlPrefix = getUrlPrefix();
+  const urlPrefix = useUrlPrefix();
   return (
     <>
       <Helmet>
