@@ -182,7 +182,7 @@ async function compileTemplate({
 
       .bottom {
         position: fixed;
-        bottom: -10px;
+        bottom: 0;
         left: 0;
         width: 1200px;
       }

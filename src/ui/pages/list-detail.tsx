@@ -117,7 +117,7 @@ const ListDetailPage = () => {
   }
 
   const description = list.description ? list.description : 'listifi';
-  const title = `${username}/${listname} -- ${description}`;
+  const title = list.name;
   const ogImage = `${urlPrefix}/og/${username}/${listname}`;
   return (
     <>
