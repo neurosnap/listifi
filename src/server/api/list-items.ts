@@ -128,7 +128,10 @@ listItemsRouter.put('/:listId/items/:id', async (ctx) => {
     data.notes = body.notes;
   }
 
-  const [listItem] = await db('list_items').where('id', id).update(data, '*');
+  const [listItem] = await db('list_items')
+    .where('id', id)
+    .update(data)
+    .returning('*');
   if (!listItem) {
     return ctx.throw(500, 'could not create list item');
   }

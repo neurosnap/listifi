@@ -8,7 +8,7 @@ export function getBody<T = any>(
     Router.RouterParamContext<any, { [key: string]: any }>
   >,
 ): T {
-  return ctx.request.body;
+  return ctx.request.body as T;
 }
 
 export function requireBody(
