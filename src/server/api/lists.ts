@@ -3,6 +3,7 @@ import jwt from 'koa-jwt';
 
 import {
   ApiListsResponse,
+  ApiListsPaginatedResponse,
   FetchListResponse,
   UpsertList,
   BulkCreateListResponse,
@@ -11,6 +12,7 @@ import {
   Computedlists,
   StarResponse,
   ApiOrderResponse,
+  UserFetchResponse,
 } from '@app/types';
 import { formatUrlName, validListName } from '@app/validate';
 
@@ -22,29 +24,41 @@ import {
   createItems,
   getLastOrder,
   textToItems,
-  generateListDetailImage,
+  getExploreData,
 } from '../services';
-import {
-  fetchListDetailData,
-  fetchPublicListData,
-  fetchUserListData,
-} from '../services/lists';
-import { createActivity } from '../services/activity';
+import { getListDetailData, getUserListData } from '../services/lists';
+import { createActivity, getActivityForFeed } from '../services/activity';
 
 export const listRouter = new Router({ prefix: '/api/lists' });
 
-listRouter.get('/public', async (ctx) => {
-  const body = await fetchPublicListData();
-  sendBody<ApiListsResponse>(ctx, body);
+listRouter.get('/explore', async (ctx) => {
+  const currentPage = ctx.request.query.page;
+  const result = await getExploreData({ currentPage });
+  if (!result.success) {
+    return ctx.throw(result.data.status, result.data.message);
+  }
+  sendBody<ApiListsPaginatedResponse>(ctx, result.data);
+});
+
+listRouter.get('/feed', async (ctx) => {
+  const curUserId = ctx.state.user.id;
+  const currentPage = ctx.request.query.page;
+  const result = await getActivityForFeed({
+    curUserId,
+    currentPage,
+  });
+  if (!result.success) {
+    return ctx.throw(result.data.status, result.data.message);
+  }
+  sendBody<UserFetchResponse>(ctx, result.data);
 });
 
 listRouter.get('/:username/:listname', async (ctx) => {
   const { username, listname } = ctx.params;
-  const result = await fetchListDetailData(username, listname);
+  const result = await getListDetailData(username, listname);
   if (!result.success) {
     return ctx.throw(result.data.status, result.data.message);
   }
-  generateListDetailImage(username, listname);
 
   sendBody<FetchListResponse>(ctx, result.data);
 });
@@ -56,7 +70,7 @@ listRouter.use(jwt(jwtOptions));
 
 listRouter.get('/', async (ctx) => {
   const userId: string = ctx.state.user.id;
-  const { lists, user } = await fetchUserListData(userId);
+  const { lists, user } = await getUserListData(userId);
   sendBody<ApiListsResponse>(ctx, { lists, users: [user] });
 });
 
@@ -242,7 +256,7 @@ listRouter.post('/:id/star', async (ctx) => {
     await createActivity({
       activity_type: 'star',
       subject_type: 'list',
-      subject_id: star.id,
+      subject_id: id,
       creator_id: userId,
     });
 

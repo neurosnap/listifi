@@ -11,6 +11,7 @@ export const defaultList = (list: Partial<ListClient> = {}): ListClient => {
     public: false,
     stars: 0,
     comments: 0,
+    views: 0,
     username: '',
     urlName: '',
     plugins: [],

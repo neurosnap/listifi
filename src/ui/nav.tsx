@@ -1,17 +1,12 @@
-import {
-  exploreUrl,
-  homeUrl,
-  listCreateUrl,
-  loginUrl,
-  profileUrl,
-  registerUrl,
-} from '@app/routes';
-import { selectHasTokenExpired, selectUser } from '@app/token';
 import { ArrowForwardIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Box, Flex, Heading, Link } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { NavLink, Link as RLink } from 'react-router-dom';
+
+import { homeUrl, listCreateUrl, loginUrl, registerUrl } from '@app/routes';
+import { selectHasTokenExpired, selectUser } from '@app/token';
+
 import { Logout } from './logout';
 import { Menu } from './menu';
 
@@ -66,25 +61,12 @@ export const Nav = () => {
             listifi
           </Link>
         </Heading>
-        <Link variant="basic" mr={4} as={NavLink} to={exploreUrl()}>
-          Explore
-        </Link>
       </Flex>
       <Flex align="center">
         <Link variant="basic" mr={4} as={NavLink} to={listCreateUrl()}>
           + Create List
         </Link>
         {hasTokenExpired ? <SignInLink /> : null}
-        {!hasTokenExpired ? (
-          <Link
-            variant="basic"
-            to={profileUrl(user.username)}
-            mr={4}
-            as={RLink}
-          >
-            Profile
-          </Link>
-        ) : null}
         {!hasTokenExpired && user.is_guest ? (
           <Link variant="basic" to={registerUrl()} mr={4} as={RLink}>
             Create account

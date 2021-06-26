@@ -11,25 +11,32 @@ import {
 } from '@chakra-ui/react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router';
-
 import { useSelector } from 'react-redux';
-import { selectPublicListsByPopularity } from '@app/lists';
+import { selectLoaderById } from 'saga-query';
+
+import { selectListsByIds, fetchExplore } from '@app/lists';
+import { State } from '@app/types';
 import { exploreUrl, listCreateUrl } from '@app/routes';
 
 import { Hero } from '../hero';
 import { RainbowRuler } from '../atoms';
 import { Footer } from '../footer';
 import { Nav } from '../nav';
-import { ListsView } from '../lists-view';
-import { ExploreItem } from '../explore-item';
+import { ListsView, ListItemSimple } from '../lists-view';
 
 const Welcome = () => {
   const navigate = useNavigate();
   const title = 'listifi -- sharable lists';
   const description =
     'Listifi is a platform to easily share, save, and explore our most popular lists.';
-  const lists = useSelector(selectPublicListsByPopularity);
-  const truncatedList = useMemo(() => lists.slice(0, 8), [lists]);
+  const loader = useSelector((state: State) =>
+    selectLoaderById(state, { id: `${fetchExplore}` }),
+  );
+  const metaIds = loader.meta.ids || [];
+  const lists = useSelector((state: State) =>
+    selectListsByIds(state, { ids: metaIds }),
+  );
+  const truncatedList = useMemo(() => lists.slice(0, 6), [lists]);
 
   return (
     <>
@@ -113,13 +120,13 @@ const Welcome = () => {
             </Box>
           </SimpleGrid>
         </Container>
-        <Container maxW="1000px" py={[8, 16]}>
+        <Container maxW="800px" py={[8, 16]}>
           <Heading size="md" mb={4}>
             Trending lists
           </Heading>
           <ListsView>
             {truncatedList.map((list) => (
-              <ExploreItem key={list.id} list={list} />
+              <ListItemSimple key={list.id} list={list} />
             ))}
           </ListsView>
         </Container>

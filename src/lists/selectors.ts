@@ -30,6 +30,7 @@ export const selectListById = createListEntitySelector(
 export const {
   selectTable: selectListTable,
   selectTableAsList: selectLists,
+  selectByIds: selectListsByIds,
 } = listSelectors;
 export const selectListByUrl = createSelector(
   selectLists,

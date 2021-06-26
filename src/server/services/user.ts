@@ -1,14 +1,21 @@
 import jwt from 'jsonwebtoken';
 
-import { Computedlists, dbTypes, ListResponse, UserResponse } from '@app/types';
+import {
+  Computedlists,
+  dbTypes,
+  ListResponse,
+  UserResponse,
+  StarResponse,
+} from '@app/types';
 
 import { env } from '../env';
 import { listQueryBuilder, userQueryBuilder } from '../query';
 import { FnResult } from '../types';
+import { getStarsForUser } from './stars';
 
 export function getTokenForUser(
   user: dbTypes.app_users,
-  expiresIn = '7d',
+  expiresIn = '365d',
 ): string {
   const tokenUser = {
     id: user.id,
@@ -32,6 +39,7 @@ export async function getUserProfileData(
   FnResult<{
     lists: ListResponse[];
     user: UserResponse;
+    stars: StarResponse[];
   }>
 > {
   const user: UserResponse | undefined = await userQueryBuilder()
@@ -53,7 +61,13 @@ export async function getUserProfileData(
     listBuilder.where('lists.public', true);
   }
 
-  const lists: Computedlists[] = await listBuilder;
+  const userLists: Computedlists[] = await listBuilder;
 
-  return { success: true, data: { lists, user } };
+  const starData = await getStarsForUser(username);
+  if (!starData.success) {
+    return starData;
+  }
+  const lists = [...userLists, ...starData.data.lists];
+
+  return { success: true, data: { lists, user, stars: starData.data.stars } };
 }

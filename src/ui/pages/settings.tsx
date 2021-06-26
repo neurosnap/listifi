@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 import {
+  Flex,
+  Avatar,
   Box,
   Button,
   Checkbox,
@@ -17,9 +19,10 @@ import { Navigate } from 'react-router';
 
 import { selectHasTokenExpired, selectUser } from '@app/token';
 import { updateSettings } from '@app/users';
-import { notFoundUrl } from '@app/routes';
+import { notFoundUrl, profileUrl } from '@app/routes';
 
 import { RainbowRuler } from '../atoms';
+import { BreadCrumbs } from '../breadcrumbs';
 
 const SettingsPage = () => {
   const dispatch = useDispatch();
@@ -51,16 +54,20 @@ const SettingsPage = () => {
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
       </Helmet>
-      <Box>
-        <Box mb={4}>
-          <Heading size="lg">{user.username}</Heading>
-          {user.is_guest ? <Tag>guest-account</Tag> : null}
-        </Box>
-        <RainbowRuler />
+      <BreadCrumbs goBack={profileUrl(user.username)}>Settings</BreadCrumbs>
+      <Box p={4}>
+        <Flex align="center">
+          <Avatar src="" size="lg" name={user.username} />
+          <Heading size="lg" ml={4}>
+            {user.username}
+          </Heading>
+        </Flex>
       </Box>
+      <RainbowRuler />
       <Container>
+        {user.is_guest ? <Tag>guest-account</Tag> : null}
         <Box>Email: {user.email}</Box>
-        <Box>Name: {user.name}</Box>
+        {user.name ? <Box>Name: {user.name}</Box> : ''}
         <form onSubmit={submit}>
           <VStack spacing={8} align="stretch" py={4}>
             <FormControl id="email-notifications">

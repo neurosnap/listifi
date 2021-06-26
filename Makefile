@@ -100,6 +100,16 @@ psql:
 	docker exec -it $(DB_CONTAINER) psql -U $(PGUSER)
 .PHONY: psql
 
+dump:
+	docker exec -it $(DB_CONTAINER) pg_dump -U $(PGUSER) postgres > backup.sql
+.PHONY: dump
+
+restore:
+	docker cp ./backup.sql $(DB_CONTAINER):/backup.sql
+	docker exec -it $(DB_CONTAINER) /bin/bash
+	# psql postgres -U postgres < /backup.sql
+.PHONY: restore
+
 redis:
 	docker exec -it $(REDIS_CONTAINER) redis-cli -a '$(REDIS_PASSWORD)'
 .PHONY: redis

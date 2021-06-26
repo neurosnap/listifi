@@ -11,7 +11,7 @@ import { deserializeList, processListItems } from '@app/lists';
 import { processComments } from '@app/comments';
 import { ListClient, ListCommentClient } from '@app/types';
 
-import { fetchListDetailData } from './lists';
+import { getListDetailData } from './lists';
 import { FnResult } from '../types';
 
 const log = debug('server:services:generate-image');
@@ -61,7 +61,7 @@ export async function generateListDetailImage(
   username: string,
   listname: string,
 ): Promise<FnResult<Buffer>> {
-  const result = await fetchListDetailData(username, listname);
+  const result = await getListDetailData(username, listname);
   if (!result.success) {
     return {
       success: false,

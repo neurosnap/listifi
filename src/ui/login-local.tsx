@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login } from '@app/auth';
 import { State } from '@app/types';
 import { selectLoaderById } from '@app/loaders';
-import { profileUrl } from '@app/routes';
+import { homeUrl } from '@app/routes';
 import { fetchData } from '@app/bootup';
 
 import { ErrorBox } from './atoms';
@@ -27,7 +27,7 @@ export const LoginLocal = () => {
 
   useLoaderSuccess(loader, () => {
     dispatch(fetchData());
-    navigate(profileUrl(loader.meta.user.username));
+    navigate(homeUrl());
   });
 
   return (

@@ -6,6 +6,7 @@ export interface Computedlists extends lists {
   username: string;
   stars: string;
   comments: string;
+  views: string;
 }
 
 export type ListResponse = Computedlists;
@@ -19,6 +20,7 @@ export interface ListClient extends ModelBase {
   ownerId: string;
   public: boolean;
   stars: number;
+  views: number;
   comments: number;
   username: string;
   urlName: string;

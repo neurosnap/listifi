@@ -5,14 +5,14 @@ import { ApiStarsResponse, UserFetchResponse, UserJWTServer } from '@app/types';
 
 import { jwtOptions } from '../env';
 import { sendBody } from '../body';
-import { getStarsForUser, getUserProfileData } from '../services';
+import { getStarsForUser, getActivityForUser } from '../services';
 
 export const userRouter = new Router({ prefix: '/api/users' });
 
 userRouter.get('/:username', async (ctx) => {
   const { username } = ctx.params;
   const curUser: UserJWTServer | undefined = ctx.state.user;
-  const result = await getUserProfileData(curUser?.id || '', username);
+  const result = await getActivityForUser(curUser?.id || '', username);
   if (!result.success) {
     return ctx.throw(result.data.status, result.data.message);
   }

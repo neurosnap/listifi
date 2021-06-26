@@ -15,7 +15,7 @@ import { fetchList, selectListByUrl, updateList } from '@app/lists';
 import { ListClient, State } from '@app/types';
 import { selectLoaderById, fetchListLoader } from '@app/loaders';
 import { selectUser } from '@app/token';
-import { listDetailUrl } from '@app/routes';
+import { listDetailUrl, homeUrl } from '@app/routes';
 import { fetchListComments } from '@app/comments';
 
 import { RainbowRuler } from '../atoms';
@@ -24,12 +24,12 @@ import { ListDetailItemsView } from '../list-detail/list-detail-items';
 import { ListDetailRead } from '../list-detail/list-detail-read';
 import { ListNameEdit } from '../list-detail/list-name-edit';
 import { useLoaderSuccess, useUrlPrefix } from '../hooks';
-import { ListItemDetailModal } from '../list-detail/list-item-detail-modal';
 import { ListComments } from '../list-detail/list-comments';
+import { BreadCrumbs } from '../breadcrumbs';
 
 const ListDetailPage = () => {
   const dispatch = useDispatch();
-  const { username, listname, itemId } = useParams();
+  const { username, listname } = useParams();
   const list = useSelector((state: State) =>
     selectListByUrl(state, { username, listname }),
   );
@@ -87,6 +87,7 @@ const ListDetailPage = () => {
   if (list.id !== '') {
     content = (
       <>
+        <BreadCrumbs goBack={homeUrl()}>List</BreadCrumbs>
         <Box mb={4}>
           {editing ? (
             <ListNameEdit
@@ -104,7 +105,9 @@ const ListDetailPage = () => {
           list={list}
           canEdit={canEdit}
         />
-        <ListComments listId={list.id} />
+        <Box p={4}>
+          <ListComments listId={list.id} />
+        </Box>
       </>
     );
   } else if (notFound) {
@@ -132,13 +135,6 @@ const ListDetailPage = () => {
       <Container maxW="3xl" p={0}>
         {content}
       </Container>
-      {itemId ? (
-        <ListItemDetailModal
-          canEdit={canEdit}
-          itemId={itemId}
-          pluginData={pluginData}
-        />
-      ) : null}
     </>
   );
 };

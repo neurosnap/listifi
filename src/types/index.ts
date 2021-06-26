@@ -18,5 +18,6 @@ export * from './comments';
 export * from './api';
 export * from './suggestions';
 export * from './settings';
+export * from './activity';
 
 export type ApiGen<RT = void> = SagaIterator<RT>;

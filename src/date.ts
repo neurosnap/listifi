@@ -17,6 +17,10 @@ const months = [
   'Dec',
 ];
 
+export const strToDate = (dateStr: string): Date => {
+  return new Date(dateStr);
+};
+
 export const formatDate = (date: Date) => {
   const month = months[date.getMonth()];
   const day = date.getDate();

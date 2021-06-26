@@ -4,10 +4,11 @@ import { selectLoaderById } from 'saga-query';
 import { Box, Spinner } from '@chakra-ui/react';
 
 import { State } from '@app/types';
-import { fetchExplore, selectListsByIds } from '@app/lists';
+import { fetchFeed } from '@app/lists';
+import { selectActivityByIds } from '@app/activities';
 
-import { ListsView, ListItemView } from '../lists-view';
 import { BreadCrumbs } from '../breadcrumbs';
+import { ActivityCard } from '../activity-card';
 import { useCreateListToast } from '../hooks';
 import { NextButton } from '../next-btn';
 
@@ -15,18 +16,24 @@ export default () => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const loader = useSelector((state: State) =>
-    selectLoaderById(state, { id: `${fetchExplore}` }),
+    selectLoaderById(state, { id: `${fetchFeed}` }),
   );
   const metaIds = loader.meta.ids || [];
   const [ids, setIds] = useState<string[]>(metaIds);
-  const lists = useSelector((state: State) => selectListsByIds(state, { ids }));
+  const activityIds: string[] = [];
+  for (let i = 1; i <= page; i += 1) {
+    activityIds.push(`feed-${i}`);
+  }
+  const activities = useSelector((s: State) =>
+    selectActivityByIds(s, { ids: activityIds }),
+  );
 
   useEffect(() => {
-    dispatch(fetchExplore({ page }));
+    dispatch(fetchFeed({ page }));
   }, [page]);
 
   useCreateListToast(() => {
-    dispatch(fetchExplore({ page: 1 }));
+    dispatch(fetchFeed({ page: 1 }));
   });
 
   useEffect(() => {
@@ -36,13 +43,13 @@ export default () => {
 
   return (
     <Box position="relative">
-      <BreadCrumbs>Explore</BreadCrumbs>
-      {loader.isInitialLoading ? <Spinner /> : null}
-      <ListsView>
-        {lists.map((list) => (
-          <ListItemView key={list.id} list={list} />
-        ))}
-      </ListsView>
+      <BreadCrumbs>Feed</BreadCrumbs>
+      <Box>
+        {loader.isInitialLoading ? <Spinner /> : null}
+        {activities.map((activity) => {
+          return <ActivityCard key={activity.id} activity={activity} />;
+        })}
+      </Box>
       <NextButton
         isLoading={loader.isLoading}
         onClick={() => setPage(page + 1)}

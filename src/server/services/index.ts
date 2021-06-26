@@ -12,3 +12,4 @@ export * from './name-generator';
 export * from './lists';
 export * from './plugins';
 export * from './generate-image';
+export * from './activity';

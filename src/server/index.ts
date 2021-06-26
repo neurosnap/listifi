@@ -81,7 +81,7 @@ app.use(async (ctx: ParameterizedContext<KoaState, any>) => {
 });
 
 const { port } = env;
-const server = app.listen(port, () => {
+const server = app.listen({ host: '0.0.0.0', port }, () => {
   log(`server started on port ${port}`);
 });
 

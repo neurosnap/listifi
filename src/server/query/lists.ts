@@ -11,6 +11,11 @@ export function listQueryBuilder() {
     .where('list_comments.list_id', listIdentifier)
     .count<number>('list_comments.id')
     .as('comments');
+  const views = db('activity_feed')
+    .where('activity_feed.subject_id', listIdentifier)
+    .where('activity_feed.activity_type', 'view_list')
+    .count<number>('activity_feed.id')
+    .as('views');
   return db<Computedlists>('lists')
     .select(
       'lists.id',
@@ -26,6 +31,7 @@ export function listQueryBuilder() {
       'app_users.username',
       stars,
       comments,
+      views,
     )
     .leftOuterJoin('app_users', 'app_users.id', 'lists.owner_id')
     .groupBy(

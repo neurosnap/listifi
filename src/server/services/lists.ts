@@ -1,23 +1,58 @@
+import {
+  IWithPagination,
+  IPaginateParams,
+  IBasePagination,
+} from 'knex-paginate';
+
 import { Computedlists, dbTypes, ListResponse, UserResponse } from '@app/types';
+
 import { db } from '../knex';
 import { listQueryBuilder, userQueryBuilder } from '../query';
 import { FnResult } from '../types';
 import { getCommentsForList } from './comments';
 
-export async function fetchPublicListData() {
-  const lists: Computedlists[] = await listQueryBuilder().where('public', true);
+export async function getExploreData({
+  perPage = 5,
+  currentPage = 1,
+  ...props
+}: Partial<IPaginateParams>): Promise<
+  FnResult<{
+    lists: ListResponse[];
+    users: UserResponse[];
+    items: dbTypes.list_items[];
+    meta: IBasePagination;
+  }>
+> {
+  const { data: lists, pagination: meta }: IWithPagination<Computedlists[]> =
+    await listQueryBuilder()
+      .where('public', true)
+      .orderBy([
+        { column: 'views', order: 'desc' },
+        { column: 'comments', order: 'desc' },
+        { column: 'stars', order: 'desc' },
+        { column: 'lists.updated_at', order: 'desc' },
+      ])
+      .paginate({
+        perPage,
+        currentPage,
+        ...props,
+      });
   const userIds = [...new Set(lists.map((list) => list.owner_id))];
   const users = await userQueryBuilder().whereIn('id', [...userIds]);
-  return { lists, users };
+  const listIds = lists.map((list) => list.id);
+  const items = await db('list_items')
+    .whereIn('list_id', listIds)
+    .orderBy('order', 'asc');
+  return { success: true, data: { lists, users, meta, items } };
 }
 
-export async function fetchUserListData(userId: string) {
+export async function getUserListData(userId: string) {
   const lists = await listQueryBuilder().where('lists.owner_id', userId);
   const user = await userQueryBuilder().where('id', userId).first();
   return { lists, user };
 }
 
-export async function fetchListDetailData(
+export async function getListDetailData(
   username: string,
   listname: string,
 ): Promise<
