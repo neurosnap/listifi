@@ -370,7 +370,6 @@ function createSSR(config: RouteConfig) {
       token,
       ...loadedData.state,
     });
-    console.log(config);
 
     const helmetContext = {};
     const app = ReactDOMServer.renderToString(
@@ -408,6 +407,5 @@ export const ssr = new Router();
 export const notFound = createSSR(defaultRouteConfig({ route: '/404' }));
 
 routes.forEach((routeConfig) => {
-  console.log(routeConfig.route);
   ssr.get(routeConfig.route, createSSR(routeConfig));
 });

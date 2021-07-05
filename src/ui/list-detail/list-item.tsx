@@ -57,7 +57,6 @@ export const ListItemDisplay = ({
   };
 
   const keydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    console.log(event.key);
     switch (event.key) {
       case 'Enter':
         onUpdate();
