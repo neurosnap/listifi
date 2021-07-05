@@ -10,9 +10,10 @@ import { db } from '../knex';
 import { listQueryBuilder, userQueryBuilder } from '../query';
 import { FnResult } from '../types';
 import { getCommentsForList } from './comments';
+import { DEFAULT_PER_PAGE } from '../constants';
 
 export async function getExploreData({
-  perPage = 5,
+  perPage = DEFAULT_PER_PAGE,
   currentPage = 1,
   ...props
 }: Partial<IPaginateParams>): Promise<
