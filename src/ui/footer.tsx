@@ -18,6 +18,7 @@ import {
   loginUrl,
   privacyUrl,
   profileUrl,
+  profileListsUrl,
   registerUrl,
   settingsUrl,
   termsUrl,
@@ -32,22 +33,34 @@ export const FooterAppLinks = () => {
   return (
     <UnorderedList spacing={2} styleType="none" ml={0}>
       <ListItem>
+        <Link as={RLink} to={homeUrl()}>
+          Home
+        </Link>
+      </ListItem>
+      <ListItem>
         <Link as={RLink} to={exploreUrl()}>
           Explore
         </Link>
       </ListItem>
-      <ListItem>
-        <Link as={RLink} to={listCreateUrl()}>
-          Create List
-        </Link>
-      </ListItem>
-      {!hasTokenExpired ? (
+      {hasTokenExpired ? null : (
+        <ListItem>
+          <Link as={RLink} to={profileListsUrl(user.username)}>
+            My Lists
+          </Link>
+        </ListItem>
+      )}
+      {!hasTokenExpired && !user.is_guest ? (
         <ListItem>
           <Link as={RLink} to={profileUrl(user.username)}>
             Profile
           </Link>
         </ListItem>
       ) : null}
+      <ListItem>
+        <Link as={RLink} to={listCreateUrl()}>
+          Create List
+        </Link>
+      </ListItem>
       {!hasTokenExpired && user.is_guest ? (
         <ListItem>
           <Link as={RLink} to={registerUrl()}>
@@ -62,7 +75,7 @@ export const FooterAppLinks = () => {
           </Link>
         </ListItem>
       ) : null}
-      {!hasTokenExpired ? (
+      {!hasTokenExpired && !user.is_guest ? (
         <ListItem>
           <Link as={RLink} to={settingsUrl()}>
             Settings

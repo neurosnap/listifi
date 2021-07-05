@@ -32,6 +32,7 @@ export function deserializeList(list: ListResponse): ListClient {
     ownerId: list.owner_id,
     public: list.public || false,
     stars: parseInt(list.stars, 10) || 0,
+    views: parseInt(list.views, 10) || 0,
     comments: parseInt(list.comments, 10) || 0,
     username: list.username,
     urlName: list.url_name,

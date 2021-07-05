@@ -47,7 +47,6 @@ commentsRouter.post('/', async (ctx) => {
   const body = getBody<{
     comment: string;
     list_id: string;
-    item_id: string;
   }>(ctx);
   const userId: string = ctx.state.user.id;
 
@@ -66,7 +65,7 @@ commentsRouter.post('/', async (ctx) => {
       comment: body.comment,
       list_id: list.id,
       user_id: userId,
-      item_id: body.item_id || null,
+      item_id: null,
     },
     '*',
   );
@@ -74,21 +73,13 @@ commentsRouter.post('/', async (ctx) => {
     return ctx.throw(500, 'could not create comment');
   }
 
-  if (body.item_id) {
-    await createActivity({
-      activity_type: 'comment',
-      subject_type: 'list_item',
-      subject_id: body.item_id,
-      creator_id: userId,
-    });
-  } else {
-    await createActivity({
-      activity_type: 'comment',
-      subject_type: 'list',
-      subject_id: body.list_id,
-      creator_id: userId,
-    });
-  }
+  await createActivity({
+    activity_type: 'comment',
+    subject_type: 'list',
+    subject_id: body.list_id,
+    creator_id: userId,
+    metadata: { comment_id: listComment.id },
+  });
 
   const owner = await db('app_users').where('id', list.owner_id).first();
   if (!owner) {

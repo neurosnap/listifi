@@ -12,3 +12,4 @@ export { default as NotFoundPage } from './not-found';
 export { default as SettingsPage } from './settings';
 export { default as AuthUsernamePage } from './auth-username';
 export { default as AboutPage } from './about';
+export { default as FeedPage } from './feed';

@@ -11,6 +11,7 @@ import { ListSuggestion } from './suggestions';
 import { Token } from './token';
 import { UserClient } from './user';
 import { VerifyEmail } from './verify';
+import { ActivityClient } from './activity';
 
 export interface State extends QueryState {
   env: Env;
@@ -27,4 +28,5 @@ export interface State extends QueryState {
   plugins: MapEntity<PluginClient>;
   comments: MapEntity<ListCommentClient>;
   suggestions: MapEntity<ListSuggestion>;
+  activities: MapEntity<ActivityClient[]>;
 }

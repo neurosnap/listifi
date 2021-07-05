@@ -32,7 +32,7 @@ export function* onFetchData(): ApiGen {
 
     yield call(fetchLists.run, fetchLists());
     const user = yield select(selectUser);
-    yield put(fetchStars(user.username));
+    yield put(fetchStars({ username: user.username }));
   }
 }
 

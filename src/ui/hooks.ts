@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { DropTargetMonitor, useDrag, useDrop, XYCoord } from 'react-dnd';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { LoadingState } from 'robodux';
+import { selectLoaderById } from 'saga-query';
+import { useToast } from '@chakra-ui/react';
 
+import { createList, fetchStars } from '@app/lists';
 import { defaultValidation, Validation } from '@app/validate';
 import { selectEnv } from '@app/env';
+import { State, ListClient } from '@app/types';
+import { selectUser } from '@app/token';
 
 export function useUrlPrefix() {
   const { apiUrl } = useSelector(selectEnv);
@@ -37,44 +42,6 @@ export function useValidator<Fn extends (...args: any[]) => Validation>(
   return { ...state, validate };
 }
 
-interface UseFetch<D extends { [key: string]: any } = { [key: string]: any }> {
-  loading: boolean;
-  error: boolean;
-  data: D;
-}
-
-function refineData<D = any>(data: any): D {
-  return data;
-}
-
-export function useFetch<D = any>(uri: string, opts: RequestInit) {
-  const env = useSelector(selectEnv);
-  const url = `${env.apiUrl}/api${uri}`;
-  const [state, setState] = useState<UseFetch<D>>({
-    loading: false,
-    data: refineData<D>({}),
-    error: false,
-  });
-  useEffect(() => {
-    setState({ loading: true, error: false, data: refineData<D>({}) });
-    fetch(url, {
-      ...opts,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        setState({ loading: false, data, error: false });
-        return data;
-      })
-      .catch((err) => {
-        setState({ loading: false, error: true, data: err });
-      });
-  }, [url]);
-  return state;
-}
-
 export function useLoaderSuccess(cur: LoadingState, success: () => any) {
   const [prev, setPrev] = useState(cur);
   useEffect(() => {
@@ -82,6 +49,34 @@ export function useLoaderSuccess(cur: LoadingState, success: () => any) {
     if (prev.isLoading && curSuccess) success();
     setPrev(cur);
   }, [cur.isSuccess, cur.isLoading]);
+}
+
+export function useCreateListToast(
+  onSuccess: (newList: ListClient) => any = () => {},
+) {
+  const loader = useSelector((state: State) =>
+    selectLoaderById(state, { id: `${createList}` }),
+  );
+  const toast = useToast();
+
+  useLoaderSuccess(loader, () => {
+    const newList = loader.meta.list;
+    toast({
+      title: 'List has been created!',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+    onSuccess(newList);
+  });
+}
+
+export function useFetchStarsForUser() {
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  useEffect(() => {
+    dispatch(fetchStars({ username: user.username }));
+  }, [user.username]);
 }
 
 interface DragItem {

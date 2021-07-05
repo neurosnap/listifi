@@ -7,6 +7,8 @@ import { StaticRouter } from 'react-router-dom/server';
 import util from 'util';
 import { ParameterizedContext } from 'koa';
 import { HelmetProvider, HelmetData } from 'react-helmet-async';
+import { defaultLoadingItem } from 'robodux';
+import { LOADERS_NAME } from 'saga-query';
 
 import { App, createStore } from '@app/web';
 import { defaultEnv } from '@app/env';
@@ -19,11 +21,10 @@ import {
   REGISTER_URL,
   EXPLORE_URL,
   PROFILE_URL,
+  PROFILE_LISTS_URL,
   VERIFY_URL,
   TERMS_URL,
   PRIVACY_URL,
-  LIST_ITEM_DETAIL_URL,
-  EXPLORE_BY_URL,
   SETTINGS_URL,
   AUTH_USERNAME_URL,
   ABOUT_URL,
@@ -37,9 +38,13 @@ import {
   processListItems,
   processLists,
   processStars,
+  processListItemsForLists,
   STARS_SLICE,
   USERNAME_STAR_IDS_SLICE,
+  fetchFeed,
+  fetchExplore,
 } from '@app/lists';
+import { processActivities, ACTIVITIES_NAME } from '@app/activities';
 import { VERIFY_EMAIL_SLICE, defaultVerifyEmail } from '@app/verify';
 import { COMMENTS_SLICE, processComments } from '@app/comments';
 import { PLUGIN_SLICE, processPlugins } from '@app/plugins';
@@ -50,10 +55,11 @@ import { getCookie } from './cookie';
 import {
   getStarsForUser,
   verifyEmail,
-  fetchListDetailData,
-  fetchPublicListData,
-  getUserProfileData,
+  getListDetailData,
+  getActivityForUser,
   getPlugins,
+  getExploreData,
+  getActivityForFeed,
 } from './services';
 import { db } from './knex';
 
@@ -113,7 +119,7 @@ async function listDetailData(
   >,
 ) {
   const { username, listname } = ctx.params;
-  const result = await fetchListDetailData(username, listname);
+  const result = await getListDetailData(username, listname);
   if (!result.success) {
     return notFoundData;
   }
@@ -139,17 +145,96 @@ async function listDetailData(
   };
 }
 
-async function exploreData() {
-  const data = await fetchPublicListData();
-  const lists = processLists(data.lists);
-  const users = processUsers(data.users);
+async function exploreData(
+  ctx: ParameterizedContext<
+    KoaState,
+    Router.RouterParamContext<any, Record<string, unknown>>
+  >,
+) {
+  const result = await getExploreData({ currentPage: 1 });
+  if (!result.success) return notFoundData;
+  const lists = processLists(result.data.lists);
+  const users = processUsers(result.data.users);
+  const { itemMap, listItemIdMap } = processListItemsForLists(
+    result.data.items,
+  );
+  const meta = {
+    ...result.data.meta,
+    ids: result.data.lists.map((list) => list.id),
+  };
+  const now = Math.floor(Date.now() / 1000);
+  const { state } = await getUserData(ctx);
   const { state: pluginState } = await getPluginData();
 
   return {
     state: {
+      ...state,
       ...pluginState,
-      [LISTS_SLICE]: lists,
-      [USERS_SLICE]: users,
+      [LISTS_SLICE]: { ...state.lists, ...lists },
+      [USERS_SLICE]: { ...state.users, ...users },
+      [LIST_ITEMS_SLICE]: itemMap,
+      [LIST_ITEM_IDS_SLICE]: listItemIdMap,
+      [LOADERS_NAME]: {
+        [`${fetchExplore}`]: defaultLoadingItem({
+          meta,
+          status: 'success',
+          lastRun: now,
+          lastSuccess: now,
+        }),
+      },
+    },
+  };
+}
+
+async function feedData(
+  ctx: ParameterizedContext<
+    KoaState,
+    Router.RouterParamContext<any, Record<string, unknown>>
+  >,
+) {
+  const userId = ctx.state.user?.id || '';
+  if (!userId) {
+    const data = await exploreData(ctx);
+    return data;
+  }
+  const result = await getActivityForFeed({
+    curUserId: userId,
+    currentPage: 1,
+  });
+  if (!result.success) return notFoundData;
+  const activities = processActivities(`feed-1`, result.data.activities);
+  const lists = processLists(result.data.lists);
+  const users = processUsers(result.data.users);
+  const comments = processComments(result.data.comments);
+  const { itemMap, listItemIdMap } = processListItemsForLists(
+    result.data.items,
+  );
+  const meta = {
+    ...result.data.meta,
+    ids: result.data.lists.map((list) => list.id),
+  };
+  const now = Math.floor(Date.now() / 1000);
+  const { state } = await getUserData(ctx);
+  const { state: pluginState } = await getPluginData();
+
+  return {
+    state: {
+      ...state,
+      ...pluginState,
+      [LISTS_SLICE]: { ...state.lists, ...lists },
+      [USERS_SLICE]: { ...state.users, ...users },
+      [LIST_ITEMS_SLICE]: itemMap,
+      [LIST_ITEM_IDS_SLICE]: listItemIdMap,
+      [COMMENTS_SLICE]: comments,
+      [ACTIVITIES_NAME]: activities,
+      [LOADERS_NAME]: {
+        [`${fetchFeed}`]: defaultLoadingItem({
+          meta,
+          status: 'success',
+          lastRun: now,
+          lastSuccess: now,
+        }),
+      },
     },
   };
 }
@@ -192,13 +277,18 @@ async function profileData(
 ) {
   const { username } = ctx.params;
   const curUser = ctx.state.user;
-  const result = await getUserProfileData(curUser?.id || '', username);
+  const result = await getActivityForUser(curUser?.id || '', username);
   if (!result.success) {
     return notFoundData;
   }
 
-  const user = deserializeUserClient(result.data.user);
+  const activities = processActivities(username, result.data.activities);
+  const users = processUsers(result.data.users);
   const lists = processLists(result.data.lists);
+  const comments = processComments(result.data.comments);
+  const { itemMap, listItemIdMap } = processListItemsForLists(
+    result.data.items,
+  );
 
   const { state } = await getUserData(ctx);
   const { state: pluginState } = await getPluginData();
@@ -208,7 +298,11 @@ async function profileData(
       ...state,
       ...pluginState,
       [LISTS_SLICE]: { ...state[LISTS_SLICE], ...lists },
-      [USERS_SLICE]: { [user.username]: user },
+      [USERS_SLICE]: users,
+      [COMMENTS_SLICE]: comments,
+      [ACTIVITIES_NAME]: activities,
+      [LIST_ITEMS_SLICE]: itemMap,
+      [LIST_ITEM_IDS_SLICE]: listItemIdMap,
     },
   };
 }
@@ -238,21 +332,17 @@ const defaultRouteConfig = (config: Partial<RouteConfig> = {}): RouteConfig => {
 };
 
 const routes = [
-  defaultRouteConfig({ route: HOME_URL, data: exploreData }),
+  defaultRouteConfig({ route: HOME_URL, data: feedData }),
+  defaultRouteConfig({ route: PROFILE_URL, data: profileData }),
+  defaultRouteConfig({ route: PROFILE_LISTS_URL, data: profileData }),
   defaultRouteConfig({
     route: LIST_DETAIL_URL,
-    data: listDetailData,
-  }),
-  defaultRouteConfig({
-    route: LIST_ITEM_DETAIL_URL,
     data: listDetailData,
   }),
   defaultRouteConfig({ route: LIST_CREATE_URL }),
   defaultRouteConfig({ route: LOGIN_URL }),
   defaultRouteConfig({ route: REGISTER_URL }),
   defaultRouteConfig({ route: EXPLORE_URL, data: exploreData }),
-  defaultRouteConfig({ route: EXPLORE_BY_URL, data: exploreData }),
-  defaultRouteConfig({ route: PROFILE_URL, data: profileData }),
   defaultRouteConfig({ route: VERIFY_URL, data: verifyEmailData }),
   defaultRouteConfig({ route: TERMS_URL }),
   defaultRouteConfig({ route: PRIVACY_URL }),
@@ -275,7 +365,12 @@ function createSSR(config: RouteConfig) {
       apiUrl: serverEnv.apiUrl,
     });
     const token = getCookie(ctx);
-    const { store } = createStore({ env, token, ...loadedData.state });
+    const { store } = createStore({
+      env,
+      token,
+      ...loadedData.state,
+    });
+    console.log(config);
 
     const helmetContext = {};
     const app = ReactDOMServer.renderToString(
@@ -289,7 +384,6 @@ function createSSR(config: RouteConfig) {
 
     const indexFile = path.resolve('./public/index.html');
     const data = await readFile(indexFile, 'utf8');
-    // A multilingual command line sentence tokenizer in Golang - neurosnap/sentences
     let html = data.replace(
       '<div id="app"></div>',
       `<div id="app">${app}</div>`,
@@ -314,5 +408,6 @@ export const ssr = new Router();
 export const notFound = createSSR(defaultRouteConfig({ route: '/404' }));
 
 routes.forEach((routeConfig) => {
+  console.log(routeConfig.route);
   ssr.get(routeConfig.route, createSSR(routeConfig));
 });

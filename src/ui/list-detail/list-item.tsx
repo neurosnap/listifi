@@ -1,13 +1,10 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { Link as RLink, useNavigate } from 'react-router-dom';
-import { ChatIcon, DragHandleIcon } from '@chakra-ui/icons';
-import { Box, Divider, Flex, HStack, Link, Text } from '@chakra-ui/react';
+import React, { useState, useRef } from 'react';
+import { DragHandleIcon } from '@chakra-ui/icons';
+import { useDispatch } from 'react-redux';
+import { Input, Box, Divider, Flex, HStack, Button } from '@chakra-ui/react';
 
-import { selectListById } from '@app/lists';
-import { ListItemClient, PluginData, State } from '@app/types';
-import { listItemDetailUrl } from '@app/routes';
-import { selectCommentsByItemId } from '@app/comments';
+import { ListItemClient, PluginData } from '@app/types';
+import { updateListItem } from '@app/lists';
 
 import { useDnD } from '../hooks';
 import { PocketMenuPlugins } from '../pocket-menu-plugins';
@@ -26,23 +23,53 @@ export const ListItemDisplay = ({
   canEdit: boolean;
   pluginData: PluginData;
 }) => {
-  const navigate = useNavigate();
-  const list = useSelector((state: State) =>
-    selectListById(state, { id: item.listId }),
-  );
-  const open = () => {
-    navigate(listItemDetailUrl(list.username, list.urlName, item.id));
-  };
-  const comments = useSelector((state: State) =>
-    selectCommentsByItemId(state, { id: item.id }),
-  );
-
+  const dispatch = useDispatch();
   const { isDragging, ref, preview } = useDnD({
     move,
     index,
     itemId: item.id,
   });
   const opacity = isDragging ? 0 : 1;
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(item.text);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onEdit = () => {
+    if (!canEdit) return;
+    setEditing(true);
+    setText(item.text);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.select();
+      }
+    }, 0);
+  };
+  const onCancel = () => {
+    setEditing(false);
+  };
+  const onUpdate = () => {
+    dispatch(
+      updateListItem({
+        ...item,
+        text,
+      }),
+    );
+    onCancel();
+  };
+
+  const keydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log(event.key);
+    switch (event.key) {
+      case 'Enter':
+        onUpdate();
+        break;
+      case 'Esc':
+      case 'Escape':
+        onCancel();
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <>
@@ -63,26 +90,46 @@ export const ListItemDisplay = ({
           <PocketMenuPlugins item={item} pluginData={pluginData} />
         </HStack>
         <Box flex={1} py={2}>
-          <Box display="inline-block" onClick={open} cursor="pointer" w="100%">
-            <ListText text={item.text} />
-          </Box>
-        </Box>
-        <Flex w="80px" justify="space-between" align="center">
-          {comments.length > 0 ? (
-            <Flex align="center">
-              <Text mr={2}>{comments.length}</Text>
-              <ChatIcon />
+          {editing ? (
+            <Flex w="100%" align="center">
+              <Input
+                variant="flushed"
+                flex={1}
+                value={text}
+                ref={inputRef}
+                onKeyDown={keydown}
+                onChange={(e) => setText(e.currentTarget.value)}
+              />
+              <Button
+                variant="rainbow"
+                size="sm"
+                w="72px"
+                ml={2}
+                onClick={onUpdate}
+              >
+                Update
+              </Button>
+              <Button
+                variant="link"
+                w="35px"
+                ml={3}
+                size="sm"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
             </Flex>
           ) : (
-            <Box />
+            <Box
+              display="inline-block"
+              w="100%"
+              onClick={canEdit ? onEdit : () => {}}
+              cursor={canEdit ? 'pointer' : 'auto'}
+            >
+              <ListText text={item.text} />
+            </Box>
           )}
-          <Link
-            to={listItemDetailUrl(list.username, list.urlName, item.id)}
-            as={RLink}
-          >
-            view
-          </Link>
-        </Flex>
+        </Box>
       </Flex>
       <Divider my={2} />
     </>

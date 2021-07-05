@@ -6,7 +6,7 @@ import { Box } from '@chakra-ui/react';
 import { loginGoogle } from '@app/auth';
 import { selectClientId } from '@app/client-id';
 import { useNavigate } from 'react-router';
-import { authUsernameUrl, profileUrl } from '@app/routes';
+import { authUsernameUrl, homeUrl } from '@app/routes';
 import { fetchData } from '@app/bootup';
 import { State } from '@app/types';
 import { selectLoaderById } from '@app/loaders';
@@ -43,7 +43,7 @@ export const LoginGoogle = ({
     if (isUuid(loader.meta.user.username)) {
       navigate(authUsernameUrl());
     } else {
-      navigate(profileUrl(loader.meta.user.username));
+      navigate(homeUrl());
     }
   });
 

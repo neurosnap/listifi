@@ -1,5 +1,4 @@
 const path = require('path');
-const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const NodemonPlugin = require('nodemon-webpack-plugin');
 

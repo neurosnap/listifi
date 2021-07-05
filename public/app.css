@@ -24,6 +24,21 @@
   }
 }
 
+@media only screen and (max-width: 1070px) {
+  #user-menu-btn {
+    width: 90px;
+  }
+
+  #user-menu-btn .username {
+    display: none;
+  }
+
+  #app-sidebar-content {
+    width: 90px;
+    margin-right: 0;
+  }
+}
+
 .md > p {
   padding: 8px 0;
 }

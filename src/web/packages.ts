@@ -10,6 +10,7 @@ import * as comments from '@app/comments';
 import * as pluginSuggestions from '@app/plugin-suggestions';
 import * as api from '@app/api';
 import * as bootup from '@app/bootup';
+import * as activities from '@app/activities';
 
 const packages: any[] = [
   env,
@@ -24,6 +25,7 @@ const packages: any[] = [
   pluginSuggestions,
   api,
   bootup,
+  activities,
 ];
 
 export const sagas = packages.reduce(

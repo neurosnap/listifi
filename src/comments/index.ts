@@ -1,4 +1,9 @@
-import { createReducerMap, createTable, MapEntity } from 'robodux';
+import {
+  createReducerMap,
+  createTable,
+  MapEntity,
+  mustSelectEntity,
+} from 'robodux';
 import { createSelector } from 'reselect';
 import { Next } from 'saga-query';
 
@@ -45,7 +50,10 @@ export const reducers = createReducerMap(slice);
 const selectors = slice.getSelectors(
   (state: State) => state[COMMENTS_SLICE] || {},
 );
+const initComment = defaultComment();
 const { selectTableAsList: selectCommentAsList } = selectors;
+const must = mustSelectEntity(initComment);
+export const selectCommentById = must(selectors.selectById);
 export const selectCommentsByItemId = createSelector(
   selectCommentAsList,
   (state: State, props: { id: string }) => props.id,
@@ -133,22 +141,22 @@ interface CreateComment {
   comment: string;
 }
 
-export const createComment = api.post<CreateComment>('/comments', function* (
-  ctx,
-  next,
-) {
-  ctx.request = {
-    body: JSON.stringify({
-      item_id: ctx.payload.itemId,
-      list_id: ctx.payload.listId,
-      comment: ctx.payload.comment,
-    }),
-  };
-  yield next();
-  if (!ctx.response.ok) return;
-  const nextComment = deserializeComment(ctx.response.data);
-  ctx.actions.push(addComments({ [nextComment.id]: nextComment }));
-});
+export const createComment = api.post<CreateComment>(
+  '/comments',
+  function* (ctx, next) {
+    ctx.request = {
+      body: JSON.stringify({
+        item_id: ctx.payload.itemId,
+        list_id: ctx.payload.listId,
+        comment: ctx.payload.comment,
+      }),
+    };
+    yield next();
+    if (!ctx.response.ok) return;
+    const nextComment = deserializeComment(ctx.response.data);
+    ctx.actions.push(addComments({ [nextComment.id]: nextComment }));
+  },
+);
 
 interface RemoveComment {
   id: string;

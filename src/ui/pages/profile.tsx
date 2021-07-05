@@ -1,69 +1,76 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link as RLink } from 'react-router-dom';
 import { useLocation, useParams } from 'react-router';
 import { Helmet } from 'react-helmet-async';
+import { Avatar, Box, Flex, Heading, Tag, Text } from '@chakra-ui/react';
 
-import { fetchUser, selectUserById } from '@app/users';
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Flex,
-  Heading,
-  Link,
-  SimpleGrid,
-  Tag,
-  Text,
-} from '@chakra-ui/react';
-import { SettingsIcon } from '@chakra-ui/icons';
+import { fetchUser, selectUserByName } from '@app/users';
 import { State } from '@app/types';
-import {
-  fetchStars,
-  selectListsByUserId,
-  selectStarredLists,
-  sortListByUpdated,
-} from '@app/lists';
-import { formatDate, isoToDate } from '@app/date';
-import { selectLoaderById } from '@app/loaders';
-import { listCreateUrl, settingsUrl } from '@app/routes';
-import { selectUser } from '@app/token';
+import { selectActivityByIds } from '@app/activities';
+import { strToDate, formatDate } from '@app/date';
+import { homeUrl } from '@app/routes';
 
-import { ListItemView, ListsView } from '../lists-view';
 import { RainbowRuler } from '../atoms';
+import { ActivityCard } from '../activity-card';
+import { BreadCrumbs } from '../breadcrumbs';
+import { useCreateListToast } from '../hooks';
 
-const ProfilePage = () => {
+const ProfilePage = ({ listsOnly }: { listsOnly: boolean }) => {
   const { username } = useParams();
   const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state: State) =>
-    selectUserById(state, { id: username }),
+    selectUserByName(state, { username }),
   );
-  const curUser = useSelector(selectUser);
-  const lists = useSelector((state: State) =>
-    selectListsByUserId(state, { id: user.id }),
+
+  const activities = useSelector((s: State) =>
+    selectActivityByIds(s, { ids: [username] }),
   );
-  const sortedLists = useMemo(() => lists.sort(sortListByUpdated), [lists]);
-  const starredLists = useSelector((state: State) =>
-    selectStarredLists(state, { username }),
+  const listActivities = activities.filter(
+    (act) => act.activityType === 'list',
   );
-  const sortedStarredLists = useMemo(
-    () => starredLists.sort(sortListByUpdated),
-    [starredLists],
-  );
-  const date = useMemo(() => formatDate(isoToDate(user.createdAt)), [
-    user.createdAt,
-  ]);
-  const userLoader = useSelector((state: State) =>
-    selectLoaderById(state, { id: `${fetchUser}` }),
-  );
+  const visibleActivities = listsOnly ? listActivities : activities;
+  const date = formatDate(strToDate(user.createdAt));
 
   useEffect(() => {
     if (username) {
       dispatch(fetchUser({ username }));
-      dispatch(fetchStars({ username }));
     }
   }, [username]);
+
+  useCreateListToast(() => {
+    dispatch(fetchUser({ username }));
+  });
+
+  const content = (
+    <Box>
+      <BreadCrumbs goBack={homeUrl()}>{username}</BreadCrumbs>
+      <Box p={4}>
+        <Flex align="center">
+          <Avatar src="" size="lg" name={username} />
+          <Heading size="lg" ml={4}>
+            {user.username}
+          </Heading>
+        </Flex>
+        <Flex>
+          <Box w="80px" />
+          <Box>
+            {user.isGuest ? <Tag>guest-account</Tag> : null}
+            <Box mb={4}>
+              <Text as="i">Member since {date}</Text>
+            </Box>
+            <Box>{listActivities.length} lists</Box>
+          </Box>
+        </Flex>
+      </Box>
+      <RainbowRuler />
+      <Box>
+        {visibleActivities.map((activity) => {
+          return <ActivityCard key={activity.id} activity={activity} />;
+        })}
+      </Box>
+    </Box>
+  );
 
   const name = user.name ? `(${user.name})` : '';
   const description = `The profile page for ${username} ${name} on the listifi platform.`;
@@ -82,55 +89,7 @@ const ProfilePage = () => {
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
       </Helmet>
-      <Box>
-        <Box mb={4}>
-          <Flex align="center">
-            <Heading size="lg">{user.username} </Heading>
-            {user.id === curUser.id ? (
-              <Link fontSize="sm" ml={8} as={RLink} to={settingsUrl()}>
-                <SettingsIcon mr={1} />
-                settings
-              </Link>
-            ) : null}
-          </Flex>
-          {user.isGuest ? <Tag>guest-account</Tag> : null}
-        </Box>
-        <Box mb={4}>
-          <Text as="i">Member since {date}</Text>
-        </Box>
-        <RainbowRuler />
-        <SimpleGrid columns={[1, 1, 2]} spacing={[8, 16]}>
-          <Box>
-            <Heading size="md" mb={4}>
-              Your lists
-            </Heading>
-            <ListsView>
-              {!userLoader.isLoading && sortedLists.length === 0 ? (
-                <Alert status="info">
-                  <AlertIcon />
-                  <Text mr={2}>You have not created a list yet.</Text>
-                  <Link display="inline-block" as={RLink} to={listCreateUrl()}>
-                    Create a list now!
-                  </Link>
-                </Alert>
-              ) : null}
-              {sortedLists.map((list) => (
-                <ListItemView key={list.id} list={list} showFrom={false} />
-              ))}
-            </ListsView>
-          </Box>
-          <Box>
-            <Heading size="md" mb={4}>
-              Starred lists
-            </Heading>
-            <ListsView>
-              {sortedStarredLists.map((list) => (
-                <ListItemView key={list.id} list={list} />
-              ))}
-            </ListsView>
-          </Box>
-        </SimpleGrid>
-      </Box>
+      {content}
     </>
   );
 };
