@@ -96,7 +96,7 @@ export const ListItemView = ({ list }: { list: ListClient }) => {
       <Box mt={4} ml={4} w="50px">
         <Avatar name={list.username} src="" />
       </Box>
-      <VStack spacing={2} px={[4, 6]} py={4} align="stretch" flex="1">
+      <VStack spacing={2} px={[4, 6]} py={4} align="stretch" flex="1" w="85%">
         <HStack alignItems="center" spacing={2}>
           <Text fontSize="sm">
             <Link

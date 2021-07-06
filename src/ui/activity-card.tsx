@@ -52,7 +52,7 @@ const ActivityList = ({
       <Box mt={context ? 9 : 4} ml={4} w="50px">
         <Avatar name={list.username} src="" />
       </Box>
-      <VStack spacing={2} px={[4, 6]} py={4} align="stretch" flex="1">
+      <VStack spacing={2} px={[4, 6]} py={4} align="stretch" flex="1" w="85%">
         <Text fontSize="sm" fontWeight="bold">
           {context}
         </Text>
