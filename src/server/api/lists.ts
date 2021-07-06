@@ -25,9 +25,12 @@ import {
   getLastOrder,
   textToItems,
   getExploreData,
+  getListDetailData,
+  getUserListData,
+  createActivity,
+  getActivityForFeed,
+  markAsViewed,
 } from '../services';
-import { getListDetailData, getUserListData } from '../services/lists';
-import { createActivity, getActivityForFeed } from '../services/activity';
 
 export const listRouter = new Router({ prefix: '/api/lists' });
 
@@ -223,6 +226,13 @@ listRouter.post('/:listId/bulk', async (ctx) => {
   await db('lists').where('id', listId).update({ updated_at: new Date() });
 
   sendBody<BulkCreateListResponse>(ctx, { list, items: results });
+});
+
+listRouter.post('/:id/view', async (ctx) => {
+  const { id } = ctx.params;
+  const userId = ctx.state.user.id;
+  await markAsViewed({ creatorId: userId, listId: id });
+  ctx.status = 204;
 });
 
 listRouter.post('/:id/star', async (ctx) => {

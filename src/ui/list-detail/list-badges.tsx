@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChatIcon, StarIcon, CopyIcon } from '@chakra-ui/icons';
+import { ViewIcon, ChatIcon, StarIcon, CopyIcon } from '@chakra-ui/icons';
 import { Box, Flex, HStack, useClipboard, useToast } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -68,14 +68,12 @@ export const ListBadges = ({ list }: { list: ListClient }) => {
           <CopyIcon />
         </Box>
       </Flex>
-    </HStack>
-  );
-};
-
-/*
-*<Flex align="center">
+      <Flex align="center">
         <Box borderRadius={30} padding="0 5px 5px 5px" className="icon">
           <ViewIcon />
         </Box>
         <Box ml={4}>{list.views}</Box>
-      </Flex> */
+      </Flex>
+    </HStack>
+  );
+};

@@ -147,3 +147,32 @@ export async function getActivityForFeed({
   }
   return data;
 }
+
+export async function markAsViewed(props: {
+  listId: string;
+  creatorId: string;
+}) {
+  const exists = await db('activity_feed')
+    .select('id')
+    .where({
+      activity_type: 'view_list',
+      subject_id: props.listId,
+      subject_type: 'list',
+      creator_id: props.creatorId,
+    })
+    .first();
+
+  if (exists?.id) {
+    return {
+      success: true,
+      data: {},
+    };
+  }
+
+  await createActivity({
+    activity_type: 'view_list',
+    subject_id: props.listId,
+    subject_type: 'list',
+    creator_id: props.creatorId,
+  });
+}

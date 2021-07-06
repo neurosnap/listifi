@@ -433,6 +433,8 @@ export const deleteList = api.delete<ListPayload>(
   },
 );
 
+export const markAsViewed = api.post<ListPayload>('/lists/:listId/view');
+
 interface DeleteListItem {
   listId: string;
   itemId: string;
