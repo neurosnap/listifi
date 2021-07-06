@@ -21,6 +21,7 @@ import {
 } from '@app/types';
 import { deleteItemLoader, fetchListLoader } from '@app/loaders';
 import { selectHasTokenExpired } from '@app/token';
+import { selectClientId } from '@app/client-id';
 import { addUsers, processUsers } from '@app/users';
 import { processComments, addComments } from '@app/comments';
 import { api, ApiCtx } from '@app/api';
@@ -433,7 +434,17 @@ export const deleteList = api.delete<ListPayload>(
   },
 );
 
-export const markAsViewed = api.post<ListPayload>('/lists/:listId/view');
+export const markAsViewed = api.post<ListPayload>(
+  '/lists/:listId/view',
+  function* (ctx: ApiCtx<any, ListPayload>, next) {
+    const clientId: string = yield select(selectClientId);
+    if (!clientId) return;
+    ctx.request = {
+      body: JSON.stringify({ client_id: clientId }),
+    };
+    yield next();
+  },
+);
 
 interface DeleteListItem {
   listId: string;

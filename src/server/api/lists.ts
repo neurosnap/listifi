@@ -66,6 +66,14 @@ listRouter.get('/:username/:listname', async (ctx) => {
   sendBody<FetchListResponse>(ctx, result.data);
 });
 
+listRouter.post('/:id/view', async (ctx) => {
+  requireBody(ctx, ['client_id']);
+  const { id } = ctx.params;
+  const body = getBody<{ client_id: string }>(ctx);
+  await markAsViewed({ creatorId: body.client_id, listId: id });
+  ctx.status = 204;
+});
+
 /**
  * PRIVATE ROUTES
  */
@@ -226,13 +234,6 @@ listRouter.post('/:listId/bulk', async (ctx) => {
   await db('lists').where('id', listId).update({ updated_at: new Date() });
 
   sendBody<BulkCreateListResponse>(ctx, { list, items: results });
-});
-
-listRouter.post('/:id/view', async (ctx) => {
-  const { id } = ctx.params;
-  const userId = ctx.state.user.id;
-  await markAsViewed({ creatorId: userId, listId: id });
-  ctx.status = 204;
 });
 
 listRouter.post('/:id/star', async (ctx) => {
