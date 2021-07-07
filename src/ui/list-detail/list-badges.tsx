@@ -39,7 +39,7 @@ export const ListBadges = ({ list }: { list: ListClient }) => {
   };
 
   return (
-    <HStack spacing={[10, 20]}>
+    <HStack spacing={[6, 20]}>
       <Flex align="center" _hover={hover} cursor="pointer">
         <Box borderRadius={30} padding="0 5px 5px 5px" className="icon">
           <ChatIcon />
