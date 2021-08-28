@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Input, Box, Divider, Flex, HStack, Button } from '@chakra-ui/react';
 
 import { ListItemClient, PluginData } from '@app/types';
-import { updateListItem } from '@app/lists';
+import { updateListItem, deleteListItem } from '@app/lists';
 
 import { useDnD } from '../hooks';
 import { PocketMenuPlugins } from '../pocket-menu-plugins';
@@ -54,6 +54,9 @@ export const ListItemDisplay = ({
       }),
     );
     onCancel();
+  };
+  const onRemove = () => {
+    dispatch(deleteListItem({ listId: item.listId, itemId: item.id }));
   };
 
   const keydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,6 +119,15 @@ export const ListItemDisplay = ({
                 onClick={onCancel}
               >
                 Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                w="72px"
+                ml={3}
+                size="xs"
+                onClick={onRemove}
+              >
+                Remove
               </Button>
             </Flex>
           ) : (

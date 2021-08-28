@@ -6,7 +6,9 @@ export async function backfillActivity() {
     .whereNotExists(function () {
       this.select('activity_feed.id')
         .from('activity_feed')
-        .whereRaw('activity_feed.subject_id = lists.id');
+        .whereRaw(
+          "activity_feed.subject_id = lists.id AND activity_feed.activity_type='list'",
+        );
     });
 
   console.log(`${listsWithoutActivity.length} lists without activity`);

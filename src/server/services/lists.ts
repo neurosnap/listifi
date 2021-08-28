@@ -28,8 +28,8 @@ export async function getExploreData({
     await listQueryBuilder()
       .where('public', true)
       .orderBy([
-        { column: 'stars', order: 'desc' },
         { column: 'views', order: 'desc' },
+        { column: 'stars', order: 'desc' },
         { column: 'comments', order: 'desc' },
         { column: 'lists.updated_at', order: 'desc' },
       ])

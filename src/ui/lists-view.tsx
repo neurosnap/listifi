@@ -11,7 +11,7 @@ import {
   UnorderedList,
   ListItem,
 } from '@chakra-ui/react';
-import { StarIcon } from '@chakra-ui/icons';
+import { StarIcon, ViewIcon } from '@chakra-ui/icons';
 import { useSelector } from 'react-redux';
 
 import { listDetailUrl, profileUrl } from '@app/routes';
@@ -57,10 +57,16 @@ export const ListItemSimple = ({ list }: { list: ListClient }) => {
               {updatedAt}
             </Text>
           </HStack>
-          <Flex align="center">
-            <StarIcon />
-            <Text ml={2}>{list.stars}</Text>
-          </Flex>
+          <HStack spacing={2}>
+            <Flex align="center">
+              <StarIcon />
+              <Text ml={2}>{list.stars}</Text>
+            </Flex>
+            <Flex align="center">
+              <ViewIcon />
+              <Text ml={2}>{list.views}</Text>
+            </Flex>
+          </HStack>
         </Flex>
         <Box>
           <Text fontSize="xl" fontWeight="bold">
