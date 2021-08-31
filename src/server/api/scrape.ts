@@ -9,12 +9,7 @@ async function getContent(url: string) {
   const styles: string[] = [];
   try {
     const browser = await puppeteer.launch({
-      headless: true,
-      // pipe: true, <-- delete this property
-      args: [
-        '--no-sandbox',
-        '--disable-dev-shm-usage', // <-- add this one
-      ],
+      args: ['--no-sandbox'],
     });
     const page = await browser.newPage();
     /* page.on('response', async (response) => {
