@@ -21,6 +21,7 @@ import {
   AuthUsernamePage,
   AboutPage,
   FeedPage,
+  ScrapePage,
   useUrlPrefix,
 } from '@app/ui';
 import {
@@ -39,6 +40,7 @@ import {
   NOT_FOUND_URL,
   AUTH_USERNAME_URL,
   ABOUT_URL,
+  SCRAPE_URL,
 } from '@app/routes';
 import { selectHasTokenExpired } from '@app/token';
 
@@ -102,6 +104,9 @@ export const RouterApp = () => {
           <Route path={ABOUT_URL}>
             <AboutPage />
           </Route>
+        </Route>
+        <Route path={SCRAPE_URL}>
+          <ScrapePage />
         </Route>
         <Route path={NOT_FOUND_URL} element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />

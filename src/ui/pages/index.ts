@@ -13,3 +13,4 @@ export { default as SettingsPage } from './settings';
 export { default as AuthUsernamePage } from './auth-username';
 export { default as AboutPage } from './about';
 export { default as FeedPage } from './feed';
+export { default as ScrapePage } from './scrape';

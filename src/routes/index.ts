@@ -32,3 +32,5 @@ export const AUTH_USERNAME_URL = '/auth-username';
 export const authUsernameUrl = () => AUTH_USERNAME_URL;
 export const ABOUT_URL = '/about';
 export const aboutUrl = () => ABOUT_URL;
+export const SCRAPE_URL = '/scrape';
+export const scrapeUrl = () => SCRAPE_URL;
