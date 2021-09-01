@@ -2,9 +2,10 @@ import { call, select } from 'redux-saga/effects';
 import {
   createApi,
   requestMonitor,
-  requestParser,
-  FetchCtx,
+  simpleCache,
+  urlParser,
   Next,
+  ApiCtx,
 } from 'saga-query';
 
 import { selectEnv } from '@app/env';
@@ -12,14 +13,9 @@ import { ApiGen } from '@app/types';
 
 interface FetchApiOpts extends RequestInit {
   url?: string;
-  quickSave?: boolean;
 }
 
-export interface ApiCtx<D = any, P = any, E = any> extends FetchCtx<D, E, P> {
-  request: FetchApiOpts;
-}
-
-function* fetchApi(request: FetchApiOpts): ApiGen<FetchCtx['response']> {
+function* fetchApi(request: FetchApiOpts): ApiGen<ApiCtx['response']> {
   const { url = '', ...options } = request;
 
   if (!options.headers) {
@@ -65,19 +61,37 @@ function* fetchApi(request: FetchApiOpts): ApiGen<FetchCtx['response']> {
   };
 }
 
-function* onFetchApi(ctx: ApiCtx, next: Next): ApiGen {
+function* onFetchApi(baseUrl: string, ctx: ApiCtx, next: Next): ApiGen {
   const { url = '' } = ctx.request;
   if (!url) return;
-  const env = yield select(selectEnv);
-  const baseUrl = env.apiUrl;
   ctx.request.url = `${baseUrl}/api${url}`;
-
   ctx.response = yield call(fetchApi, ctx.request);
   yield next();
+}
+
+function* useFetchApi(ctx: ApiCtx, next: Next): ApiGen<any> {
+  const env = yield select(selectEnv);
+  const baseUrl = env.apiUrl;
+  yield call(onFetchApi, baseUrl, ctx, next);
+}
+
+function* useScrapeApi(ctx: ApiCtx, next: Next): ApiGen<any> {
+  const env = yield select(selectEnv);
+  const baseUrl = env.apiScrapeUrl;
+  (ctx.request as any).credentials = 'omit';
+  yield call(onFetchApi, baseUrl, ctx, next);
 }
 
 export const api = createApi<ApiCtx>();
 api.use(requestMonitor());
 api.use(api.routes());
-api.use(requestParser());
-api.use(onFetchApi);
+api.use(urlParser);
+api.use(simpleCache);
+api.use(useFetchApi);
+
+export const scrapeApi = createApi<ApiCtx>();
+scrapeApi.use(requestMonitor());
+scrapeApi.use(scrapeApi.routes());
+scrapeApi.use(urlParser);
+scrapeApi.use(simpleCache);
+scrapeApi.use(useScrapeApi);

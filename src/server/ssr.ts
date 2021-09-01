@@ -363,6 +363,7 @@ function createSSR(config: RouteConfig) {
       googleClientId: serverEnv.googleClientId,
       nodeEnv: serverEnv.nodeEnv,
       apiUrl: serverEnv.apiUrl,
+      apiScrapeUrl: serverEnv.apiScrapeUrl,
     });
     const token = getCookie(ctx);
     const { store } = createStore({

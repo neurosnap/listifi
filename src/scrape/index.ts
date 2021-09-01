@@ -1,10 +1,10 @@
-import { api } from '@app/api';
+import { scrapeApi } from '@app/api';
 import { select } from 'redux-saga/effects';
 import { ApiGen } from '@app/types';
 
 import { selectClientId } from '@app/client-id';
 
-export const scrape = api.post<{ url: string }>(
+export const scrape = scrapeApi.post<{ url: string }>(
   '/scrape',
   function* scraper(ctx, next): ApiGen {
     const clientId = yield select(selectClientId);
@@ -13,7 +13,7 @@ export const scrape = api.post<{ url: string }>(
         url: ctx.payload.url,
         clientId,
       }),
-      quickSave: true,
+      simpleCache: true,
     };
     yield next();
   },

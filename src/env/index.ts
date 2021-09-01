@@ -6,6 +6,7 @@ export const defaultEnv = (e: Partial<Env> = {}): Env => {
     googleClientId: '',
     nodeEnv: 'development',
     apiUrl: '/',
+    apiScrapeUrl: '/',
     ...e,
   };
 };

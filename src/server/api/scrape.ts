@@ -12,24 +12,21 @@ async function getContent(url: string) {
       args: ['--no-sandbox'],
     });
     const page = await browser.newPage();
-    /* page.on('response', async (response) => {
+    page.on('response', async (response) => {
       if (response.request().resourceType() === 'stylesheet') {
         const css = await response.text();
         styles.push(css);
       }
-    }); */
+    });
 
-    console.log(url);
     await page.goto(url, { waitUntil: 'networkidle0' });
-    console.log('GOTO');
     const html = await page.evaluate(() => document.documentElement.outerHTML);
-    console.log(html);
 
     await browser.close();
-    return { html, styles };
+    return { html, styles, error: '' };
   } catch (err) {
     console.error(err);
-    return { html: '', styles };
+    return { html: '', styles, error: err.message };
   }
 }
 

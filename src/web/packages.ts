@@ -33,7 +33,7 @@ export const sagas = packages.reduce(
     if (!pkg.sagas) return acc;
     return { ...acc, ...pkg.sagas };
   },
-  { api: api.api.saga() },
+  { api: api.api.saga(), scrapeApi: api.scrapeApi.saga() },
 );
 
 export const reducers = packages.reduce((acc, pkg) => {

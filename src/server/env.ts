@@ -11,6 +11,7 @@ export const env = {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV,
   apiUrl: process.env.API_URL || 'listifi.app',
+  apiScrapeUrl: process.env.API_SCRAPE_URL || 'listifi.app',
   sendGridApiKey: process.env.SENDGRID_API_KEY || '',
   databaseUrl: process.env.DATABASE_URL || '',
 };
