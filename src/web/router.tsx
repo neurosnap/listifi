@@ -104,9 +104,9 @@ export const RouterApp = () => {
           <Route path={ABOUT_URL}>
             <AboutPage />
           </Route>
-        </Route>
-        <Route path={SCRAPE_URL}>
-          <ScrapePage />
+          <Route path={SCRAPE_URL}>
+            <ScrapePage />
+          </Route>
         </Route>
         <Route path={NOT_FOUND_URL} element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />

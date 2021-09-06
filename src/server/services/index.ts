@@ -13,3 +13,4 @@ export * from './lists';
 export * from './plugins';
 export * from './generate-image';
 export * from './activity';
+export * from './list-extractor';
