@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 
 interface ListMap {
-  [key: string]: string[];
+  [key: string]: Set<string>;
 }
 
 export async function extractListsFromSite(url: string) {
@@ -35,16 +35,22 @@ export async function extractListsFromSite(url: string) {
           }
 
           if (!li[nextId]) {
-            li[nextId] = [];
+            li[nextId] = new Set();
           }
-          li[nextId].push(...text.split('\n').filter((t) => Boolean(t.trim())));
+
+          text
+            .split('\n')
+            .filter((t) => Boolean(t.trim()))
+            .forEach((item) => li[nextId].add(item));
 
           if (!li[nextClassId]) {
-            li[nextClassId] = [];
+            li[nextClassId] = new Set();
           }
-          li[nextClassId].push(
-            ...text.split('\n').filter((t) => Boolean(t.trim())),
-          );
+
+          text
+            .split('\n')
+            .filter((t) => Boolean(t.trim()))
+            .forEach((item) => li[nextClassId].add(item));
         };
 
         if (!el.hasChildNodes()) {
@@ -68,7 +74,10 @@ export async function extractListsFromSite(url: string) {
         el.remove();
       });
       traverse(document.querySelector('body'), '');
-      return li;
+
+      return Object.values(li)
+        .filter((list) => list.size > 1)
+        .map((list) => Array.from(list));
     });
     const html = await page.evaluate(() => {
       document.querySelectorAll('script, noscript').forEach((el) => {
@@ -78,7 +87,8 @@ export async function extractListsFromSite(url: string) {
     });
 
     await browser.close();
-    return { lists: Object.values(lists), error: '', html };
+
+    return { lists, error: '', html };
   } catch (err) {
     console.error(err);
     return { lists: [], error: err.message, html: '' };
