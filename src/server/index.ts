@@ -22,7 +22,6 @@ import {
   suggestionsRouter,
   settingsRouter,
   ogRouter,
-  scrapeRouter,
 } from './api';
 import { db } from './knex';
 
@@ -70,8 +69,6 @@ app
   .use(settingsRouter.allowedMethods())
   .use(ogRouter.routes())
   .use(ogRouter.allowedMethods())
-  .use(scrapeRouter.routes())
-  .use(scrapeRouter.allowedMethods())
   .use(ssr.routes())
   .use(ssr.allowedMethods())
   .use(serve('./public'));

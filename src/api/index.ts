@@ -79,10 +79,40 @@ function* useFetchApi(ctx: ApiCtx, next: Next): ApiGen<any> {
 }
 
 function* useScrapeApi(ctx: ApiCtx, next: Next): ApiGen<any> {
+  const { url = '' } = ctx.request;
   const env = yield select(selectEnv);
   const baseUrl = env.apiScrapeUrl;
-  (ctx.request as any).credentials = 'omit';
-  yield call(onFetchApi, baseUrl, ctx, next);
+  const resp = yield call(fetch, `${baseUrl}${url}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: ctx.request.method,
+    body: ctx.request.body,
+  });
+
+  let data = {};
+  try {
+    data = yield call([resp, 'json']);
+  } catch (err) {
+    ctx.response = {
+      status: resp.status,
+      ok: false,
+      data: { message: err.message },
+    };
+    yield next();
+    return;
+  }
+
+  if (!resp.ok) {
+    ctx.response = { status: resp.status, ok: false, data: data as any };
+    yield next();
+    return;
+  }
+
+  ctx.response = {
+    status: resp.status,
+    ok: true,
+    data,
+  };
+  yield next();
 }
 
 export const api = createApi<ApiCtx>();
