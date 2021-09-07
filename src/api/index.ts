@@ -5,7 +5,7 @@ import {
   simpleCache,
   urlParser,
   Next,
-  ApiCtx,
+  FetchCtx,
 } from 'saga-query';
 
 import { selectEnv } from '@app/env';
@@ -14,6 +14,9 @@ import { ApiGen } from '@app/types';
 interface FetchApiOpts extends RequestInit {
   url?: string;
 }
+
+export interface ApiCtx<D = any, P = any>
+  extends FetchCtx<D, { message: string }, P> {}
 
 function* fetchApi(request: FetchApiOpts): ApiGen<ApiCtx['response']> {
   const { url = '', ...options } = request;
@@ -38,7 +41,7 @@ function* fetchApi(request: FetchApiOpts): ApiGen<ApiCtx['response']> {
   if (resp.status === 204) {
     return {
       status: resp.status,
-      ok: resp.ok,
+      ok: true as true,
       data: {},
     };
   }
@@ -51,12 +54,12 @@ function* fetchApi(request: FetchApiOpts): ApiGen<ApiCtx['response']> {
   }
 
   if (!resp.ok) {
-    return { status: resp.status, ok: false, data };
+    return { status: resp.status, ok: false as false, data: data as any };
   }
 
   return {
     status: resp.status,
-    ok: true,
+    ok: true as true,
     data,
   };
 }

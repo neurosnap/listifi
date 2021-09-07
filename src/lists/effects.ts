@@ -136,8 +136,8 @@ export const fetchLists = api.get(
     }
 
     yield next();
-    const { ok, data } = ctx.response;
-    if (!ok) return;
+    if (!ctx.response.ok) return;
+    const { data } = ctx.response;
     const users = processUsers(data.users);
     const lists = processLists(data.lists);
     ctx.actions.push(addLists(lists), addUsers(users));
@@ -300,8 +300,8 @@ export const starList = api.post<{ listId: string }>(
   function* (ctx: ApiCtx<StarResponse>, next) {
     const { listId } = ctx.payload;
     yield next();
-    const { ok, data } = ctx.response;
-    if (!ok) return;
+    if (!ctx.response.ok) return;
+    const { data } = ctx.response;
 
     const list: ListClient = yield select(selectListById, { id: listId });
     if (isEmpty(data)) {
@@ -354,8 +354,8 @@ export const createListItemBulk = api.post<UpsertListItem>(
       }),
     };
     yield next();
-    const { ok, data } = ctx.response;
-    if (!ok) return;
+    if (!ctx.response.ok) return;
+    const { data } = ctx.response;
     const list = deserializeList(data.list);
     const { items, itemIds } = processListItems(data.items);
     const curItemIds = yield select(selectItemIdsByList, { id: listId });
