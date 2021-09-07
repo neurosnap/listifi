@@ -28,6 +28,7 @@ import {
   SETTINGS_URL,
   AUTH_USERNAME_URL,
   ABOUT_URL,
+  SCRAPE_URL,
 } from '@app/routes';
 import { State } from '@app/types';
 import {
@@ -349,6 +350,7 @@ const routes = [
   defaultRouteConfig({ route: SETTINGS_URL }),
   defaultRouteConfig({ route: AUTH_USERNAME_URL }),
   defaultRouteConfig({ route: ABOUT_URL }),
+  defaultRouteConfig({ route: SCRAPE_URL }),
 ];
 
 function createSSR(config: RouteConfig) {

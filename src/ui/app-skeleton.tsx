@@ -129,7 +129,7 @@ export const AppSkeleton = () => {
               </Box>
             </Box>
             {hasExpired ? null : (
-              <Menu>
+              <Menu id="profile-menu-id" isLazy>
                 <MenuButton
                   id="user-menu-btn"
                   pos="fixed"

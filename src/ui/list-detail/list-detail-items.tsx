@@ -84,7 +84,7 @@ export const ListDetailItemsView = ({
 
   return (
     <Box>
-      <Tabs index={tabIndex} onChange={handleTabsChange}>
+      <Tabs index={tabIndex} onChange={handleTabsChange} id="list-detail-id">
         <TabList>
           {tabItems}
           {canEdit ? <Tab>Settings</Tab> : null}

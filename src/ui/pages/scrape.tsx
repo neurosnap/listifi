@@ -330,7 +330,6 @@ const ListCreator = ({ list, setList }: Props) => {
   useCreateListToast((newList) =>
     navigate(listDetailUrl(newList.username, newList.urlName)),
   );
-  console.log(loader);
 
   return (
     <Box
@@ -348,7 +347,7 @@ const ListCreator = ({ list, setList }: Props) => {
             onClick={onShare}
             disabled={list.length === 0}
             colorScheme="green"
-            isLoading={loader.isLoading}
+            isLoading={loader.isLoading || guestLoader.isLoading}
           >
             Share
           </Button>
@@ -418,7 +417,7 @@ export default () => {
   };
 
   return (
-    <Tabs h="100%" index={tabIndex} onChange={setTabIndex}>
+    <Tabs h="100%" index={tabIndex} onChange={setTabIndex} id="menu-id">
       <TabList>
         <Tab>Scrape</Tab>
         <Tab>List</Tab>
@@ -452,7 +451,7 @@ export default () => {
                     spacing={4}
                     p={8}
                     bgColor="gray.100"
-                    w="450px"
+                    w="488px"
                     borderRadius="5px"
                   >
                     <p>
