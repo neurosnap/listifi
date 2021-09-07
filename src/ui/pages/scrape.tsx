@@ -395,7 +395,7 @@ const ListCreator = ({ list, setList }: Props) => {
 export default () => {
   const dispatch = useDispatch();
   const [list, setList] = useState<string[]>([]);
-  const [site, setSite] = useState('https://news.ycombinator.com');
+  const [site, setSite] = useState('');
   const action = scrape({ url: site });
   const loader = useSelector((state) =>
     selectLoaderById(state, { id: `${scrape}` }),
