@@ -36,6 +36,19 @@ import { useValidator, useCreateListToast, useLoaderSuccess } from '../hooks';
 
 type SetListFn = (l: string[]) => string[];
 
+function validURL(str: string): boolean {
+  var pattern = new RegExp(
+    '^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i',
+  ); // fragment locator
+  return !!pattern.test(str);
+}
+
 interface Props {
   list: string[];
   setList: (fn: SetListFn | string[]) => any;
@@ -399,10 +412,16 @@ export default () => {
   const loader = useSelector((state) =>
     selectLoaderById(state, { id: `${scrape}` }),
   );
+  const [error, setError] = useState('');
   const id = JSON.stringify(action);
   const data = useSelector((state: State) => selectDataById(state, { id }));
   const onSubmit = (e: any) => {
     e.preventDefault();
+    if (!validURL(site)) {
+      setError('must enter a valid URL');
+      return;
+    }
+    setError('');
     dispatch(action);
   };
   const [tabIndex, setTabIndex] = useState(0);
@@ -428,20 +447,38 @@ export default () => {
           <Box>
             <form onSubmit={onSubmit}>
               <HStack space={4} mb={4}>
-                <Input
-                  value={site}
-                  onChange={(e) => setSite(e.currentTarget.value)}
-                  h="42px"
-                  maxW="400px"
-                  flex={1}
-                />
-                <Button
-                  type="submit"
-                  isLoading={loader.isLoading}
-                  variant="rainbow"
+                <FormControl
+                  id="url"
+                  isRequired
+                  isInvalid={!!error || loader.isError}
+                  maxW="488px"
+                  w="100%"
                 >
-                  listifi!
-                </Button>
+                  <Flex>
+                    <Input
+                      value={site}
+                      onChange={(e) => setSite(e.currentTarget.value)}
+                      h="42px"
+                      maxW="400px"
+                      flex={1}
+                      mr={4}
+                    />
+                    <Button
+                      type="submit"
+                      isLoading={loader.isLoading}
+                      variant="rainbow"
+                    >
+                      listifi!
+                    </Button>
+                  </Flex>
+                  <FormHelperText>
+                    Enter a valid website to scrape it for lists
+                  </FormHelperText>
+                  <FormErrorMessage>
+                    <p>{loader.isError ? loader.message : ''}</p>
+                    <p>{error}</p>
+                  </FormErrorMessage>
+                </FormControl>
               </HStack>
             </form>
             <Flex>
