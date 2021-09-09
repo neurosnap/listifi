@@ -22,8 +22,8 @@ import {
   ButtonGroup,
   useToast,
 } from '@chakra-ui/react';
+import { selectLoaderById, useSimpleCache } from 'saga-query';
 import { LinkIcon } from '@chakra-ui/icons';
-import { selectDataById, selectLoaderById } from 'saga-query';
 import { listDetailUrl } from '@app/routes';
 import { State } from '@app/types';
 import { scrape } from '@app/scrape';
@@ -405,16 +405,14 @@ const ListCreator = ({ list, setList }: Props) => {
 };
 
 export default () => {
-  const dispatch = useDispatch();
   const [list, setList] = useState<string[]>([]);
   const [site, setSite] = useState('');
   const action = scrape({ url: site });
-  const loader = useSelector((state) =>
-    selectLoaderById(state, { id: `${scrape}` }),
-  );
   const [error, setError] = useState('');
-  const id = JSON.stringify(action);
-  const data = useSelector((state: State) => selectDataById(state, { id }));
+
+  const { isLoading, isError, message, isSuccess, data, trigger } =
+    useSimpleCache(action);
+
   const onSubmit = (e: any) => {
     e.preventDefault();
     if (!validURL(site)) {
@@ -422,7 +420,7 @@ export default () => {
       return;
     }
     setError('');
-    dispatch(action);
+    trigger();
   };
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -431,7 +429,7 @@ export default () => {
     list,
     html: data?.html || '',
     lists: data?.lists || [],
-    isLoading: loader.isLoading,
+    isLoading,
     setTabIndex,
   };
 
@@ -450,7 +448,7 @@ export default () => {
                 <FormControl
                   id="url"
                   isRequired
-                  isInvalid={!!error || loader.isError}
+                  isInvalid={!!error || isError}
                   maxW="488px"
                   w="100%"
                 >
@@ -465,7 +463,7 @@ export default () => {
                     />
                     <Button
                       type="submit"
-                      isLoading={loader.isLoading}
+                      isLoading={isLoading}
                       variant="rainbow"
                     >
                       listifi!
@@ -475,14 +473,14 @@ export default () => {
                     Enter a valid website to scrape it for lists
                   </FormHelperText>
                   <FormErrorMessage>
-                    <p>{loader.isError ? loader.message : ''}</p>
+                    <p>{isError ? message : ''}</p>
                     <p>{error}</p>
                   </FormErrorMessage>
                 </FormControl>
               </HStack>
             </form>
             <Flex>
-              {!loader.isLoading && !loader.isSuccess ? (
+              {!isLoading && !isSuccess ? (
                 <Flex flex={1} h="100%" w="100%">
                   <VStack
                     spacing={4}
