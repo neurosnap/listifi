@@ -10,3 +10,4 @@ public/index.html
 .envrc
 .env
 .env.prod
+.direnv/
