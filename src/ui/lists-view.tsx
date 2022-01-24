@@ -127,7 +127,7 @@ export const ListItemView = ({ list }: { list: ListClient }) => {
           <Text as="i">{list.description}</Text>
         </Box>
         <UnorderedList spacing={2} styleType="circle">
-          {items.map((item) => {
+          {items.slice(0, 5).map((item) => {
             return (
               <ListItem key={item.id}>
                 <ListText text={item.text} />
@@ -135,7 +135,14 @@ export const ListItemView = ({ list }: { list: ListClient }) => {
             );
           })}
         </UnorderedList>
-        <ListBadges list={list} />
+        {items.length > 5 ? (
+          <Link to={listDetailUrl(list.username, list.urlName)}>
+            + {items.length - 5} more items
+          </Link>
+        ) : null}
+        <Flex justify="center">
+          <ListBadges list={list} />
+        </Flex>
       </VStack>
     </Flex>
   );

@@ -77,15 +77,20 @@ const ActivityList = ({
           </Text>
         </Box>
         <UnorderedList spacing={2} styleType="circle">
-          {items.map((item) => {
+          {items.slice(0, 5).map((item) => {
             return (
               <ListItem key={item.id}>
                 <ListText text={item.text} />
               </ListItem>
             );
           })}
+          {items.length > 5 ? (
+            <Text>+ {items.length - 5} more items</Text>
+          ) : null}
         </UnorderedList>
-        <ListBadges list={list} />
+        <Flex justify="center">
+          <ListBadges list={list} />
+        </Flex>
       </VStack>
     </Flex>
   );
