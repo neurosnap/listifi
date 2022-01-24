@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewIcon, ChatIcon, StarIcon, CopyIcon } from '@chakra-ui/icons';
+import { ViewIcon, StarIcon, CopyIcon } from '@chakra-ui/icons';
 import { Box, Flex, HStack, useClipboard, useToast } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -40,11 +40,15 @@ export const ListBadges = ({ list }: { list: ListClient }) => {
 
   return (
     <HStack spacing={[6, 20]}>
-      <Flex align="center" _hover={hover} cursor="pointer">
-        <Box borderRadius={30} padding="0 5px 5px 5px" className="icon">
-          <ChatIcon />
+      <Flex align="center" _hover={hover} onClick={copy}>
+        <Box
+          borderRadius={30}
+          padding="0 5px 5px 5px"
+          className="icon"
+          cursor="pointer"
+        >
+          <CopyIcon />
         </Box>
-        <Box ml={4}>{list.comments}</Box>
       </Flex>
       <Flex
         align="center"
@@ -57,16 +61,6 @@ export const ListBadges = ({ list }: { list: ListClient }) => {
           <StarIcon />
         </Box>
         <Box ml={4}>{list.stars}</Box>
-      </Flex>
-      <Flex align="center" _hover={hover} onClick={copy}>
-        <Box
-          borderRadius={30}
-          padding="0 5px 5px 5px"
-          className="icon"
-          cursor="pointer"
-        >
-          <CopyIcon />
-        </Box>
       </Flex>
       <Flex align="center">
         <Box borderRadius={30} padding="0 5px 5px 5px" className="icon">

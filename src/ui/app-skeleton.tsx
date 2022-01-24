@@ -30,7 +30,6 @@ import {
   loginUrl,
   registerUrl,
   profileListsUrl,
-  scrapeUrl,
 } from '@app/routes';
 
 import { CreateListModal } from './create-list-modal';
@@ -92,12 +91,16 @@ export const AppSkeleton = () => {
                 fontWeight="bold"
                 fontSize={20}
               >
-                <Link as={RLink} end to={homeUrl()}>
-                  Home
-                </Link>
-                <Link as={RLink} to={exploreUrl()}>
-                  Explore
-                </Link>
+                {hasExpired ? null : (
+                  <Link as={RLink} end to={homeUrl()}>
+                    Home
+                  </Link>
+                )}
+                {hasExpired ? null : (
+                  <Link as={RLink} to={exploreUrl()}>
+                    Explore
+                  </Link>
+                )}
                 {hasExpired ? null : (
                   <Link as={RLink} to={profileListsUrl(user.username)}>
                     My Lists
@@ -113,9 +116,6 @@ export const AppSkeleton = () => {
                     Create account
                   </Link>
                 ) : null}
-                <Link as={RLink} to={scrapeUrl()}>
-                  Scrape
-                </Link>
               </VStack>
               <Box mt={10}>
                 <Button

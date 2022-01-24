@@ -21,15 +21,12 @@ import { ListClient, State } from '@app/types';
 import { selectLoaderById, fetchListLoader } from '@app/loaders';
 import { selectUser } from '@app/token';
 import { listDetailUrl, homeUrl } from '@app/routes';
-import { fetchListComments } from '@app/comments';
 
-import { RainbowRuler } from '../atoms';
 import { usePlugins } from '../use-plugins';
 import { ListDetailItemsView } from '../list-detail/list-detail-items';
 import { ListDetailRead } from '../list-detail/list-detail-read';
 import { ListNameEdit } from '../list-detail/list-name-edit';
 import { useLoaderSuccess, useUrlPrefix } from '../hooks';
-import { ListComments } from '../list-detail/list-comments';
 import { BreadCrumbs } from '../breadcrumbs';
 
 const ListDetailPage = () => {
@@ -69,7 +66,6 @@ const ListDetailPage = () => {
 
   useEffect(() => {
     dispatch(fetchList({ username, listname }));
-    dispatch(fetchListComments({ listId: list.id }));
     dispatch(markAsViewed({ listId: list.id }));
   }, [username, listname]);
 
@@ -105,15 +101,11 @@ const ListDetailPage = () => {
             <ListDetailRead list={list} edit={edit} />
           )}
         </Box>
-        <RainbowRuler />
         <ListDetailItemsView
           pluginData={pluginData}
           list={list}
           canEdit={canEdit}
         />
-        <Box p={4}>
-          <ListComments listId={list.id} />
-        </Box>
       </>
     );
   } else if (notFound) {

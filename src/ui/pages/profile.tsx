@@ -26,10 +26,13 @@ const ProfilePage = ({ listsOnly }: { listsOnly: boolean }) => {
   const activities = useSelector((s: State) =>
     selectActivityByIds(s, { ids: [username] }),
   );
+  const filteredActivities = activities.filter(
+    (act) => act.activityType !== 'comment',
+  );
   const listActivities = activities.filter(
     (act) => act.activityType === 'list',
   );
-  const visibleActivities = listsOnly ? listActivities : activities;
+  const visibleActivities = listsOnly ? listActivities : filteredActivities;
   const date = formatDate(strToDate(user.createdAt));
 
   useEffect(() => {

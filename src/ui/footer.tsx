@@ -137,7 +137,7 @@ export const Footer = () => {
           </Heading>
           <Box>
             © 2020{' '}
-            <Link href="mailto:eric@listifi.app" isExternal>
+            <Link href="https://erock.io" isExternal>
               Eric Bower
             </Link>
           </Box>
