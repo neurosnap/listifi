@@ -5,7 +5,6 @@ PGHOST?="db"
 PGUSER?="postgres"
 PORT?="5432"
 DB_CONTAINER?=listifi_db_1
-REDIS_CONTAINER?=listifi_redis_1
 
 # run this command to login after adding docker-machine creds
 # gcloud auth application-default login
@@ -110,7 +109,3 @@ restore:
 	docker exec -it $(DB_CONTAINER) /bin/bash
 	# psql postgres -U postgres < /backup.sql
 .PHONY: restore
-
-redis:
-	docker exec -it $(REDIS_CONTAINER) redis-cli -a '$(REDIS_PASSWORD)'
-.PHONY: redis
