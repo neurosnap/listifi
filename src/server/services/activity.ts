@@ -73,10 +73,10 @@ export async function getActivityData({
 }
 
 export async function getActivityForUser(
-  curUserId: string,
+  curUserName: string,
   username: string,
 ): Promise<FnResult<UserFetchResponse>> {
-  const sameUser = curUserId === username;
+  const sameUser = curUserName === username;
   const user = await db<{ id: string }>('app_users')
     .first('id')
     .where('username', username);

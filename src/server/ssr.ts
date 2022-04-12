@@ -278,7 +278,7 @@ async function profileData(
 ) {
   const { username } = ctx.params;
   const curUser = ctx.state.user;
-  const result = await getActivityForUser(curUser?.id || '', username);
+  const result = await getActivityForUser(curUser?.username || '', username);
   if (!result.success) {
     return notFoundData;
   }
